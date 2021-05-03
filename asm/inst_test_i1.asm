@@ -1,7 +1,7 @@
 ;*
 ;* My RISC-V RV32I CPU
 ;*   Test Code IF/ID Instructions : No.1
-;*    Verilog code
+;*    RV32I code
 ;* @auther		Yoshiki Kurokawa <yoshiki.k963@gmail.com>
 ;* @copylight	2021 Yoshiki Kurokawa
 ;* @license		https://opensource.org/licenses/MIT     MIT license
