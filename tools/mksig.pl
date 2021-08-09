@@ -1,13 +1,13 @@
 #!/usr/bin/perl
-/*
- * My RISC-V RV32I CPU
- *   Verilog Upper Module Signal Definition Creator
- *    Perl code
- * @auther		Yoshiki Kurokawa <yoshiki.k963@gmail.com>
- * @copylight	2021 Yoshiki Kurokawa
- * @license		https://opensource.org/licenses/MIT     MIT license
- * @version		0.1
- */
+#/*
+# * My RISC-V RV32I CPU
+# *   Verilog Upper Module Signal Definition Creator
+# *    Perl code
+# * @auther		Yoshiki Kurokawa <yoshiki.k963@gmail.com>
+# * @copylight	2021 Yoshiki Kurokawa
+# * @license		https://opensource.org/licenses/MIT     MIT license
+# * @version		0.1
+# */
 
 $flg = 0;
 
