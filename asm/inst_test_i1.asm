@@ -16,9 +16,9 @@ lui x2, 0xc0000 ; LED address
 sb x1, 0x0(x2) ; set LED
 ; test lui
 :fail_test1
-lui x3, 0x00fef ; test value
+lui x3, 0x007ef ; test value
 srli x3, x3, 12
-ori x4, x0, 0xfef
+ori x4, x0, 0x7ef
 bne x4, x3, fail_test1
 ; next value
 addi x1, x0, 6 ; LED value
@@ -27,7 +27,7 @@ sb x1, 0x0(x2) ; set LED
 :fail_test2
 auipc x5, 0x12345 ; test value
 lui x6, 0x12345 ; check value
-srli x6, x6, 36
+addi x6, x6, 44
 bne x5, x6, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
@@ -65,7 +65,7 @@ sb x1, 0x0(x2) ; set LED
 :fail_test6
 ori x12, x0, 1 ; 
 sub x12, x0, x12 ; make -1
-slti x13, x12, 0x235 ; test 0
+sltiu x13, x12, 0xf35 ; test 0
 ori x14, x0, 0 ; check 1
 bne x13, x14, fail_test6
 ; next value
@@ -74,14 +74,15 @@ sb x1, 0x0(x2) ; set LED
 :fail_test7
 ori x12, x0, 0x233 ; 
 slti x13, x12, 0x234 ; test 1
-and x14, x0, x0 ; check 2
+ori x14, x0, 1 ;
 bne x13, x14, fail_test7
 addi x1, x0, 0 ; LED value
 sb x1, 0x0(x2) ; set LED
 ; test finished
 nop
 nop
-lui x2, 01000 ; loop max
+; lui x2, 01000 ; loop max
+ori x2, x0, 10 ; small loop for sim
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
 lui x4, 0xc0000 ; LED address
