@@ -19,37 +19,24 @@ module data_1r1w(
 
 // 8x256 1r1w RAM
 
-reg[31:0] ram[0:1023];
+reg[7:0] ram0[0:1023];
+reg[7:0] ram1[0:1023];
+reg[7:0] ram2[0:1023];
+reg[7:0] ram3[0:1023];
 reg[9:0] radr;
 
-wire ena = |ram_wen;
-reg [7:0] d0,d1,d2,d3;
-
-always @(ram_wen or ram_wdata or ram_wadr or ram) begin
-	if (ram_wen[0])
-		d0 = ram_wdata[7:0];
-	else
-		d0 = ram[ram_wadr][7:0];
-	if (ram_wen[1])
-		d1 = ram_wdata[15:8];
-	else
-		d1 = ram[ram_wadr][15:8];
-	if (ram_wen[2])
-		d2 = ram_wdata[23:16];
-	else
-		d2 = ram[ram_wadr][23:16];
-	if (ram_wen[3])
-		d3 = ram_wdata[31:24];
-	else
-		d3 = ram[ram_wadr][31:24];
-end	
-
 always @ (posedge clk) begin
-	if (ena)
-		ram[ram_wadr] <= { d3,d2,d1,d0 };
+	if (en[0])
+		ram0[ram_wadr] <= ram_wdata[7:0];
+	if (en[1])
+		ram1[ram_wadr] <= ram_wdata[15:8];
+	if (en[2])
+		ram2[ram_wadr] <= ram_wdata[23:16];
+	if (en[3])
+		ram3[ram_wadr] <= ram_wdata[31:24];
 	radr <= ram_radr;
 end
 
-assign ram_rdata = ram[radr];
+assign ram_rdata = { ram3[radr], ram2[radr], ram1[radr], ram0[radr] };
 
 endmodule
