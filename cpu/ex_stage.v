@@ -165,8 +165,7 @@ wire [31:0] alu_sll = rs1_sel << rs2_sel[4:0];
 
 wire [31:0] alu_srl = rs1_sel >> rs2_sel[4:0];
 
-
-wire signed [31:0] alu_sra = $signed( rs1_sel ) >>> $signed({ 1'b0, rs2_sel[4:0] }) ;
+wire signed [31:0] alu_sra = $signed( rs1_sel ) >>> $signed( rs2_sel[4:0] ) ;
 
 wire [31:0] alu_srl_sra = cmd_alu_sub_ex ? alu_sra : alu_srl;
 
