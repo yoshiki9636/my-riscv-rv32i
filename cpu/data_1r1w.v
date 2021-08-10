@@ -26,13 +26,13 @@ reg[7:0] ram3[0:1023];
 reg[9:0] radr;
 
 always @ (posedge clk) begin
-	if (en[0])
+	if (ram_wen[0])
 		ram0[ram_wadr] <= ram_wdata[7:0];
-	if (en[1])
+	if (ram_wen[1])
 		ram1[ram_wadr] <= ram_wdata[15:8];
-	if (en[2])
+	if (ram_wen[2])
 		ram2[ram_wadr] <= ram_wdata[23:16];
-	if (en[3])
+	if (ram_wen[3])
 		ram3[ram_wadr] <= ram_wdata[31:24];
 	radr <= ram_radr;
 end
