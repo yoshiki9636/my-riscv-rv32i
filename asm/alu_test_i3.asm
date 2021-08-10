@@ -28,11 +28,10 @@ addi x1, x0, 6 ; LED value
 sb x1, 0x0(x2) ; set LED
 ; test sub
 :fail_test2
-ori x5, x0, 0x7ff
-ori x6, x0, 0x800
+ori x5, x0, 0x3ff
+ori x6, x0, 0x400
 sub x5, x5, x6
-lui x6, 0xfffff
-ori x6, x6, 0xfff
+ori x6, x0, 0xfff
 bne x5, x6, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
@@ -40,10 +39,9 @@ sb x1, 0x0(x2) ; set LED
 ; test sll
 :fail_test3
 ori x7, x0, 0x5a5
-ori x8, x0, 0x111
+ori x8, x0, 0x11
 sll x7, x7, x8
-lui x8, 0x000b4
-ori x8, x8, 0xa00
+lui x8, 0x0b4a0
 bne x7, x8, fail_test3
 ; next value
 addi x1, x0, 4 ; LED value
@@ -95,7 +93,8 @@ sb x1, 0x0(x2) ; set LED
 ; test finished
 nop
 nop
-lui x2, 01000 ; loop max
+;lui x2, 01000 ; loop max
+ori x2, x0, 10 ; loop max
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
 lui x4, 0xc0000 ; LED address
