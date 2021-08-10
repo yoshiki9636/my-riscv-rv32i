@@ -81,7 +81,7 @@ wire write_data_en;
 
 wire dump_running;
 wire trush_running;
-wire data_en;
+//wire data_en;
 wire crlf_in;
 
 /*
@@ -208,4 +208,4 @@ uart_logics uart_logics (
 	.inst_data_en(inst_data_en)
 	);
 
-endmodule
+endmodule 
