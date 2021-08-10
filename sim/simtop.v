@@ -24,7 +24,7 @@ fpga_top fpga_top (
         .rgb_led(rgb_led)
 	);
 
-// initial $readmemh("./test.txt", simmem);
+//initial $readmemh("./test.txt", simmem);
 
 initial clkin = 0;
 
@@ -32,11 +32,16 @@ always #5 clkin <= ~clkin;
 
 
 initial begin
+	force fpga_top.cpu_start = 1'b0;
 	rst_n = 1'b1;
 #10
 	rst_n = 1'b0;
 #20
 	rst_n = 1'b1;
+#10
+	force fpga_top.cpu_start = 1'b1;
+#10
+	force fpga_top.cpu_start = 1'b0;
 #500000
 	$stop;
 end
