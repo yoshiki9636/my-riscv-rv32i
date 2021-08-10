@@ -198,9 +198,11 @@ wire [31:0] jump_adr = adr_s1 + adr_s2;
 // ALU
 
 wire [2:0] alu_code = alu_code_ex & { 3{ ~(cmd_alu_ex & cmd_alui_ex & cmd_alui_shamt_ex) }};
+wire cmd_stld = cmd_st_ex | cmd_ld_ex;
 
 function [31:0] alu_selector;
 input [2:0] alu_code;
+input cmd_stld;
 input [31:0] alu_add;
 input [31:0] alu_sll;
 input [31:0] alu_slt;
@@ -210,21 +212,23 @@ input [31:0] alu_srl_sra;
 input [31:0] alu_or;
 input [31:0] alu_and;
 begin
-	case(alu_code)
-		3'b000: alu_selector = alu_add;
-		3'b001: alu_selector = alu_sll;
-		3'b010: alu_selector = alu_slt;
-		3'b011: alu_selector = alu_sltu;
-		3'b100: alu_selector = alu_xor;
-		3'b101: alu_selector = alu_srl_sra;
-		3'b110: alu_selector = alu_or;
-		3'b111: alu_selector = alu_and;
+	casez({cmd_stld,alu_code})
+		4'b1???: alu_selector = alu_add;
+		4'b0000: alu_selector = alu_add;
+		4'b0001: alu_selector = alu_sll;
+		4'b0010: alu_selector = alu_slt;
+		4'b0011: alu_selector = alu_sltu;
+		4'b0100: alu_selector = alu_xor;
+		4'b0101: alu_selector = alu_srl_sra;
+		4'b0110: alu_selector = alu_or;
+		4'b0111: alu_selector = alu_and;
 		default: alu_selector = alu_add;
 	endcase
 end
 endfunction
 
 wire [31:0] alu_sel = alu_selector( alu_code,
+                                    cmd_stld,
                                     alu_add,
                                     alu_sll,
                                     alu_slt,
