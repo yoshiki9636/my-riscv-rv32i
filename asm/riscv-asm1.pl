@@ -369,7 +369,7 @@ while(<>) {
 		$code = $ofs1 + $ofs2 + $ofs3 + $ofs4 + $rd + $op1 + 3;
 	}
 	elsif (/^\s*jalr\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
-        if (defined($value{$3})) { $ofs = $value{$3} - $pc; }
+        if (defined($value{$3})) { $ofs = $value{$3};  }
         else { die "Error: Label $3 is not defined."; }
 		$ofs = ($ofs & 0xfff) << 20;
 		$rd = $1 << 7;
