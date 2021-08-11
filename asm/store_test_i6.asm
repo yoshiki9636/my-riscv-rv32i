@@ -25,7 +25,10 @@ sw x3, 0xc(x0)
 :fail_test1
 and x4, x4, x0
 lui x5, 0xfedcb
-ori x5, x5, 0xa98
+ori x5, x5, 0x298
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sb x5, 0x0(x4)
 lw x6, 0x0(x4)
 lui x7, 0xa5a5a
@@ -39,11 +42,17 @@ sb x1, 0x0(x2) ; set LED
 and x8, x8, x0
 ori x4, x0, 0x1
 lui x5, 0x98fed
-ori x5, x5, 0xcba
+ori x5, x5, 0x4ba
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sb x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0xa5a5b
-ori x7, x7, 0xa98
+ori x7, x7, 0x298
+lui x8, 0x00001
+srli x8, x8, 1
+or x7, x7, x8
 bne x6, x7, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
@@ -53,11 +62,17 @@ sb x1, 0x0(x2) ; set LED
 and x8, x8, x0
 ori x4, x0, 0x2
 lui x5, 0xba98f
-ori x5, x5, 0xedc
+ori x5, x5, 0x6dc
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sb x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0xa5dcb
-ori x7, x7, 0xa98
+ori x7, x7, 0x298
+lui x8, 0x00001
+srli x8, x8, 1
+or x7, x7, x8
 bne x6, x7, fail_test3
 ; next value
 addi x1, x0, 4 ; LED value
@@ -67,11 +82,17 @@ sb x1, 0x0(x2) ; set LED
 and x8, x8, x0
 ori x4, x0, 0x3
 lui x5, 0xdcba9
-ori x5, x5, 0x8fe
+ori x5, x5, 0x0fe
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sb x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0xfedcb
-ori x7, x7, 0xa98
+ori x7, x7, 0x298
+lui x8, 0x00001
+srli x8, x8, 1
+or x7, x7, x8
 bne x6, x7, fail_test4
 ; next value
 addi x1, x0, 3 ; LED value
@@ -81,11 +102,17 @@ sb x1, 0x0(x2) ; set LED
 ori x8, x0, 0x4
 ori x4, x0, 0x4
 lui x5, 0xfedcb
-ori x5, x5, 0xa98
+ori x5, x5, 0x298
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sh x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0xa5a5b
-ori x7, x7, 0xa98
+ori x7, x7, 0x298
+lui x8, 0x00001
+srli x8, x8, 1
+or x7, x7, x8
 bne x6, x7, fail_test5
 ; next value
 addi x1, x0, 2 ; LED value
@@ -95,11 +122,17 @@ sb x1, 0x0(x2) ; set LED
 ori x8, x0, 0x4
 ori x4, x0, 0x6
 lui x5, 0xba98f
-ori x5, x5, 0xedc
+ori x5, x5, 0x6dc
+lui x7, 0x00001
+srli x7, x7, 1
+or x5, x5, x7
 sh x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0xfedcb
-ori x7, x7, 0xa98
+ori x7, x7, 0x298
+lui x8, 0x00001
+srli x8, x8, 1
+or x7, x7, x8
 bne x6, x7, fail_test6
 ; next value
 addi x1, x0, 1 ; LED value
@@ -110,7 +143,7 @@ ori x8, x0, 0x8
 ori x4, x0, 0x8
 lui x5, 0x76543
 ori x5, x5, 0x210
-sh x5, 0x0(x4)
+sw x5, 0x0(x4)
 lw x6, 0x0(x8)
 lui x7, 0x76543
 ori x7, x7, 0x210
@@ -121,7 +154,8 @@ sb x1, 0x0(x2) ; set LED
 ; test finished
 nop
 nop
-lui x2, 01000 ; loop max
+;lui x2, 01000 ; loop max
+ori x2, x0, 10
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
 lui x4, 0xc0000 ; LED address
