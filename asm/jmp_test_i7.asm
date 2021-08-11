@@ -40,8 +40,8 @@ jal x4, fail_test2
 jalr x3, x3, zero
 jal x4, fail_test2
 :ok2_test2
-ori x5, x0, 72
-bne x3, x5, fail_test1
+ori x5, x0, 0x44
+bne x3, x5, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
 sb x1, 0x0(x2) ; set LED
@@ -145,7 +145,8 @@ jal x4, fail_test8
 ; test finished
 nop
 nop
-lui x2, 01000 ; loop max
+;lui x2, 01000 ; loop max
+ori x2, x0, 10
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
 lui x4, 0xc0000 ; LED address
