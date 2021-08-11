@@ -138,7 +138,7 @@ wire [31:0] st_data_ex = ~nohit_rs2_ex ? rs2_fwd : rs2_data_ex;
 
 // jump / branch / auipc
 
-wire [31:0] adr_s1 = pc_data;
+wire [31:0] adr_s1 = cmd_jalr_ex ? rs1_sel : pc_data;
 wire [31:0] adr_s2 = cmd_auipc_ex ? auipc_data :
                      cmd_jal_ex ? jal_ofs :
 					 cmd_jalr_ex ? jalr_ofs : br_ofs;
