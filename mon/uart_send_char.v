@@ -48,7 +48,7 @@ always @ (posedge clk or negedge rst_n) begin
     if (~rst_n)
         send_cntr <= 6'd0;
 	else if (rdata_snd_start)
-        send_cntr <= 6'd12 + 6'd32;
+        send_cntr <= 6'd24 + 6'd32;
 	else if (crlf_in)
 		send_cntr <= 6'd1 + 6'd32;
 	else if (send_cntr[5] & tx_rdy)
