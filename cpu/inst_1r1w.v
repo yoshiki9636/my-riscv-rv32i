@@ -22,8 +22,6 @@ module inst_1r1w(
 reg[31:0] ram[0:1023];
 reg[9:0] radr;
 
-//initial $readmemh("./test.txt", ram);
-
 always @ (posedge clk) begin
 	if (ram_wen)
 		ram[ram_wadr] <= ram_wdata;

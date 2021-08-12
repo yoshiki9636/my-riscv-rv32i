@@ -24,7 +24,7 @@ fpga_top fpga_top (
         .rgb_led(rgb_led)
 	);
 
-//initial $readmemh("./test.txt", simmem);
+initial $readmemh("./test.txt", fpga_top.cpu_top.if_stage.inst_1r1w.ram);
 
 initial clkin = 0;
 
