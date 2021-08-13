@@ -1,9 +1,78 @@
 # my-riscv-rv32i  
   
 My RISC-V RV32I CPU  
-  
 RISC-V RV32I instruction set CPU for study  
+(Currently Japanese document only)
   
+Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのverilog RTL論理および動作環境です。  
+一応Tang Primerを歌っておりますが、clock PLLのみIP使用であり、特殊な記述もないため、  
+他のFPGAへの移植も容易と思います。  
+  
+1. Version 0.1の制約  
+以下の制約があります。  
+  
+- ALU周り、Load/Store、Jump系を作成。  
+- fence系、csr系、ecall系、uret系などは未実装。割り込みも未実装。  
+- メモリはinstructionとdataでセパレート。各々1KWordsの大きさ。  
+- I/OはRGB LEDの3ピンのみ。  
+  
+2. 簡単な使い方  
+  
+まずはgit cloneしてください。  
+  
+2.1 RTL simulation  
+Intel FPGA用に配布されている、Modelsim 10.5b で動作確認しております。  
+基本的なverilog記述しか使用していないので、大抵のシミュレータで動作可能と思います。  
+  
+(1) ssim/ディレクトリを作成し、cpu/ fpga/ io/ mon/ sim/の内容をコピーします。  
+  
+(2) asm/ディレクトリで riscv-asm1.plを使い、テスト命令列test.txtを作成。ssim/にコピーします。  
+　　例：./risc-vasm1.pl lchika.asm > test.txt  
+  
+(3) ssim/内でverilogシミュレータを動作させます。　  
+  
+2.3 Tang Primer Synthesis & run  
+  
+Tang Primer専用のIDEを使用して合成、FPGAへの書き込みを行います。詳しくは、SiPEEDのページを参照ください。  
+https://tang.sipeed.com/en/  
+  
+(1) ssyn/ディレクトリを作成し、cpu/ fpga/ io/ mon/ syn/の内容をコピーします。  
+  
+(2) IDEを立ち上げ、プロジェクトを作成、ssynをディレクトリに指定して、すべてのverilogファイルを指定します。  
+  
+(3) PLLの追加が必要なので、Tools->IP Generatorを選択し、Create New IPから、PLLを選択します。名称はpll、入力24MHz、出力36MHzとして作成します。  
+  
+(4) 後は用法通りに合成、書き込みをします。  
+  
+(5) USB - UART変換器を使って、FPGAとシリアル通信します。変換器のRxをB15、TxをB16、GndをGのどれかに接続します。  
+  
+(6) Teratermを使ってシリアル通信をします。Teratermの新しい接続で、シリアルを選択し、COMを変換器のものにします。  
+  
+(7) 設定->シリアルポートで、スピード:9600　データ:8bit　パリティ:none　ストップビット:1bit フロー制御:none  
+  
+(8) 設定->端末で、　改行コード　受信:AUTO　送信:CR　これでキーボードをたたくとエコーバックが帰ってくれば、動いております。  
+  
+(9) プログラムを書き込みます。qを押して、状態をクリアしたのち、i 00000000と打ち込むと、改行されます。シミュレーションで作ったtest.txtの内容をコピペしてください。最後にqを押します。  
+  
+(10) 書き込んだプログラムをダンプするには、p 00000000 00000100と打ち込んでください。先ほどのプログラムがダンプされます。  
+  
+(11) 実行は、g 00000000で実行状態になります。lchika.asmであれば、RGB LEDが色を変化させます。そのほかのテストプログラムも項目を確認後、テストパスがわかるように同じようなLチカとなります。  
+  
+(12) 実行の停止もqで停止します。それ以外のコマンドは、以下の通りです。  
+  
+	command format
+	g : goto PC address ( run program until quit ) : format:  g <start addess>
+	q : quit from any command                      : format:  q
+	w : write date to memory                       : format:  w <start adderss> <data> ....<data> q
+	r : read data from memory                      : format:  r <start address> <end adderss>
+	t : trashed memory data and 0 clear            : format:  t
+	s : program step execution                     : format:  s
+	p : read instruction memory                    : format:  p <start address> <end adderss>
+	i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
+	k : print current PC value                     : format:  k
+
+
+-----  
 Design Memo ( Japanese )  
   
 1.パイプライン設計  
