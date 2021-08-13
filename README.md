@@ -69,7 +69,7 @@ https://tang.sipeed.com/en/
 	s : program step execution                     : format:  s
 	p : read instruction memory                    : format:  p <start address> <end adderss>
 	i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
-	k : print current PC value                     : format:  k
+	j : print current PC value                     : format:  j
 
 
 -----  
