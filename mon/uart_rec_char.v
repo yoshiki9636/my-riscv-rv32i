@@ -148,9 +148,9 @@ wire cmd_crlf = decode_bits[25] & data_en;
 // s : program step execution                     : format:  s
 // p : read instruction memory                    : format:  p <start address> <end adderss>
 // i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
-// k : print current PC value                     : format:  k
-// state machine
+// j : print current PC value                     : format:  j
 
+// state machine
 reg word_valid;
 
 reg [3:0] cmd_status;
