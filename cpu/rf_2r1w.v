@@ -19,7 +19,7 @@ module rf_2r1w(
 	input ram_wen
 	);
 
-// 8x256 1r1w RAM
+// 4x32 1r1w RAM
 
 reg[31:0] ram[0:31];
 reg[4:0] radr1;

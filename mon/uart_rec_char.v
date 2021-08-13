@@ -33,6 +33,8 @@ module uart_rec_char (
 	output pgm_stop,
 	output inst_address_set,
 	output inst_data_en,
+	output pc_print,
+	output pc_print_sel,
 	output crlf_in
 	//output reg [3:0] cmd_status,
 	//output reg data_en,
@@ -59,41 +61,42 @@ always @ (posedge clk or negedge rst_n) begin
 		data_en <= rout_en;
 end
 
-function [24:0] data_decoder;
+function [25:0] data_decoder;
 input [7:0] pdata;
 begin
 	case(pdata)
-		8'h30 : data_decoder = 25'b0_0000_0000_0000_0000_0000_0001; // 0
-		8'h31 : data_decoder = 25'b0_0000_0000_0000_0000_0000_0010; // 1
-		8'h32 : data_decoder = 25'b0_0000_0000_0000_0000_0000_0100; // 2
-		8'h33 : data_decoder = 25'b0_0000_0000_0000_0000_0000_1000; // 3
-		8'h34 : data_decoder = 25'b0_0000_0000_0000_0000_0001_0000; // 4
-		8'h35 : data_decoder = 25'b0_0000_0000_0000_0000_0010_0000; // 5
-		8'h36 : data_decoder = 25'b0_0000_0000_0000_0000_0100_0000; // 6
-		8'h37 : data_decoder = 25'b0_0000_0000_0000_0000_1000_0000; // 7
-		8'h38 : data_decoder = 25'b0_0000_0000_0000_0001_0000_0000; // 8
-		8'h39 : data_decoder = 25'b0_0000_0000_0000_0010_0000_0000; // 9
-		8'h61 : data_decoder = 25'b0_0000_0000_0000_0100_0000_0000; // a
-		8'h62 : data_decoder = 25'b0_0000_0000_0000_1000_0000_0000; // b
-		8'h63 : data_decoder = 25'b0_0000_0000_0001_0000_0000_0000; // c
-		8'h64 : data_decoder = 25'b0_0000_0000_0010_0000_0000_0000; // d
-		8'h65 : data_decoder = 25'b0_0000_0000_0100_0000_0000_0000; // e
-		8'h66 : data_decoder = 25'b0_0000_0000_1000_0000_0000_0000; // f
-		8'h67 : data_decoder = 25'b0_0000_0001_0000_0000_0000_0000; // g : go PC to address (run program)
-		8'h71 : data_decoder = 25'b0_0000_0010_0000_0000_0000_0000; // q : quit,stop,finish
-		8'h77 : data_decoder = 25'b0_0000_0100_0000_0000_0000_0000; // w : write data memory
-		8'h72 : data_decoder = 25'b0_0000_1000_0000_0000_0000_0000; // r : read data memory and dump
-		8'h74 : data_decoder = 25'b0_0001_0000_0000_0000_0000_0000; // t : trushed memory and 0 clear
-		8'h73 : data_decoder = 25'b0_0010_0000_0000_0000_0000_0000; // s : step execution
-		8'h70 : data_decoder = 25'b0_0100_0000_0000_0000_0000_0000; // p : read instruction memory
-		8'h69 : data_decoder = 25'b0_1000_0000_0000_0000_0000_0000; // i : write instruction memory		
-		8'h0d : data_decoder = 25'b1_0000_0000_0000_0000_0000_0000; // CR : change to CRLF
+		8'h30 : data_decoder = 26'b00_0000_0000_0000_0000_0000_0001; // 0
+		8'h31 : data_decoder = 26'b00_0000_0000_0000_0000_0000_0010; // 1
+		8'h32 : data_decoder = 26'b00_0000_0000_0000_0000_0000_0100; // 2
+		8'h33 : data_decoder = 26'b00_0000_0000_0000_0000_0000_1000; // 3
+		8'h34 : data_decoder = 26'b00_0000_0000_0000_0000_0001_0000; // 4
+		8'h35 : data_decoder = 26'b00_0000_0000_0000_0000_0010_0000; // 5
+		8'h36 : data_decoder = 26'b00_0000_0000_0000_0000_0100_0000; // 6
+		8'h37 : data_decoder = 26'b00_0000_0000_0000_0000_1000_0000; // 7
+		8'h38 : data_decoder = 26'b00_0000_0000_0000_0001_0000_0000; // 8
+		8'h39 : data_decoder = 26'b00_0000_0000_0000_0010_0000_0000; // 9
+		8'h61 : data_decoder = 26'b00_0000_0000_0000_0100_0000_0000; // a
+		8'h62 : data_decoder = 26'b00_0000_0000_0000_1000_0000_0000; // b
+		8'h63 : data_decoder = 26'b00_0000_0000_0001_0000_0000_0000; // c
+		8'h64 : data_decoder = 26'b00_0000_0000_0010_0000_0000_0000; // d
+		8'h65 : data_decoder = 26'b00_0000_0000_0100_0000_0000_0000; // e
+		8'h66 : data_decoder = 26'b00_0000_0000_1000_0000_0000_0000; // f
+		8'h67 : data_decoder = 26'b00_0000_0001_0000_0000_0000_0000; // g : go PC to address (run program)
+		8'h71 : data_decoder = 26'b00_0000_0010_0000_0000_0000_0000; // q : quit,stop,finish
+		8'h77 : data_decoder = 26'b00_0000_0100_0000_0000_0000_0000; // w : write data memory
+		8'h72 : data_decoder = 26'b00_0000_1000_0000_0000_0000_0000; // r : read data memory and dump
+		8'h74 : data_decoder = 26'b00_0001_0000_0000_0000_0000_0000; // t : trushed memory and 0 clear
+		8'h73 : data_decoder = 26'b00_0010_0000_0000_0000_0000_0000; // s : step execution
+		8'h70 : data_decoder = 26'b00_0100_0000_0000_0000_0000_0000; // p : read instruction memory
+		8'h69 : data_decoder = 26'b00_1000_0000_0000_0000_0000_0000; // i : write instruction memory		
+		8'h6a : data_decoder = 26'b01_0000_0000_0000_0000_0000_0000; // j : print PC
+		8'h0d : data_decoder = 26'b10_0000_0000_0000_0000_0000_0000; // CR : change to CRLF
 		default : data_decoder = 25'd0;
 	endcase
 end
 endfunction
 
-wire [24:0] decode_bits = data_decoder( pdata );
+wire [25:0] decode_bits = data_decoder( pdata );
 
 function [3:0] bin_encoder;
 input [15:0] hot_code;
@@ -133,7 +136,8 @@ wire cmd_t = decode_bits[20] & data_en;
 wire cmd_s = decode_bits[21] & data_en;
 wire cmd_p = decode_bits[22] & data_en;
 wire cmd_i = decode_bits[23] & data_en;
-wire cmd_crlf = decode_bits[24] & data_en;
+wire cmd_j = decode_bits[24] & data_en;
+wire cmd_crlf = decode_bits[25] & data_en;
 
 // command format
 // g : goto PC address ( run program until quit ) : format:  g <start addess>
@@ -144,6 +148,7 @@ wire cmd_crlf = decode_bits[24] & data_en;
 // s : program step execution                     : format:  s
 // p : read instruction memory                    : format:  p <start address> <end adderss>
 // i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
+// k : print current PC value                     : format:  k
 // state machine
 
 reg word_valid;
@@ -160,12 +165,13 @@ wire [3:0] next_cmd_status;
 `define C_RENDNUM 4'd6
 `define C_RDUMPDT 4'd7
 `define C_TRUSHDT 4'd8
-`define C_STEPRUN 4'd9
+`define C_STEPRUN 4'd9 // not implimented
 `define C_IRDSTAR 4'd10
 `define C_IRDENDN 4'd11
 `define C_IRDDUMP 4'd12
 `define C_IWTADRN 4'd13
 `define C_IWTDATA 4'd14
+`define C_PCPRINT 4'd15
 
 
 function [3:0] cmd_statemachine;
@@ -178,6 +184,7 @@ input cmd_t;
 input cmd_s;
 input cmd_p;
 input cmd_i;
+input cmd_j;
 input word_valid;
 input dump_running;
 input trush_running;
@@ -185,14 +192,15 @@ input trush_running;
 begin
 	case(cmd_status)
 		`C_STAIDLE :
-			casez({cmd_g,cmd_w,cmd_r,cmd_t,cmd_s,cmd_p,cmd_i})
-				7'b1??_???? : cmd_statemachine = `C_GSETNUM;
-				7'b01?_???? : cmd_statemachine = `C_WADRNUM;
-				7'b001_???? : cmd_statemachine = `C_RSTARTN;
-				7'b000_1??? : cmd_statemachine = `C_TRUSHDT;
-				7'b000_01?? : cmd_statemachine = `C_STEPRUN;
-				7'b000_001? : cmd_statemachine = `C_IRDSTAR;
-				7'b000_0001 : cmd_statemachine = `C_IWTADRN;
+			casez({cmd_j,cmd_g,cmd_w,cmd_r,cmd_t,cmd_s,cmd_p,cmd_i})
+				8'b1???_???? : cmd_statemachine = `C_PCPRINT;
+				8'b01??_???? : cmd_statemachine = `C_GSETNUM;
+				8'b001?_???? : cmd_statemachine = `C_WADRNUM;
+				8'b0001_???? : cmd_statemachine = `C_RSTARTN;
+				8'b0000_1??? : cmd_statemachine = `C_TRUSHDT;
+				8'b0000_01?? : cmd_statemachine = `C_STEPRUN;
+				8'b0000_001? : cmd_statemachine = `C_IRDSTAR;
+				8'b0000_0001 : cmd_statemachine = `C_IWTADRN;
 				default   : cmd_statemachine = `C_STAIDLE;
 			endcase
 		`C_GSETNUM :
@@ -240,10 +248,7 @@ begin
 			else
 				cmd_statemachine = `C_TRUSHDT;
 		`C_STEPRUN :
-			if (cmd_q)// | ~cpu_running)
-				cmd_statemachine = `C_STAIDLE;
-			else
-				cmd_statemachine = `C_STEPRUN;
+			cmd_statemachine = `C_STAIDLE;
 		`C_IRDSTAR :
 			casez({cmd_q,word_valid})
 				2'b1? : cmd_statemachine = `C_STAIDLE;
@@ -272,6 +277,11 @@ begin
 				cmd_statemachine = `C_STAIDLE;
 			else
 				cmd_statemachine = `C_IWTDATA;
+		`C_PCPRINT :
+			if (cmd_q | ~dump_running)
+				cmd_statemachine = `C_STAIDLE;
+			else
+				cmd_statemachine = `C_PCPRINT;
 		default : cmd_statemachine = `C_STAIDLE;
 	endcase
 end
@@ -287,6 +297,7 @@ assign next_cmd_status = cmd_statemachine(
 							cmd_s,
 							cmd_p,
 							cmd_i,
+							cmd_j,
 							word_valid,
 							dump_running,
 							trush_running
@@ -314,14 +325,17 @@ wire pcmd_setend = ( cmd_status == `C_IRDENDN );
 wire pcmd_dumpdt = ( cmd_status == `C_IRDDUMP );
 wire icmd_setnum = ( cmd_status == `C_IWTADRN );
 wire icmd_setdat = ( cmd_status == `C_IWTDATA );
+wire jcmd_pcprnt = ( cmd_status == `C_PCPRINT );
 
 wire g_crlf = ( cmd_status == `C_GSETNUM ) & ( next_cmd_status == `C_GOTONUM );
 wire r_crlf = ( cmd_status == `C_RENDNUM ) & ( next_cmd_status == `C_RDUMPDT );
 wire w_crlf = ( cmd_status == `C_WADRNUM ) & ( next_cmd_status == `C_WDATNUM );
 wire p_crlf = ( cmd_status == `C_IRDENDN ) & ( next_cmd_status == `C_IRDDUMP );
 wire i_crlf = ( cmd_status == `C_IWTADRN ) & ( next_cmd_status == `C_IWTDATA );
+assign pc_print_sel = (cmd_status == `C_PCPRINT);
+assign pc_print = idle_status & (next_cmd_status == `C_PCPRINT);
 
-assign crlf_in = g_crlf | cmd_q | r_crlf | w_crlf | cmd_t | cmd_s | p_crlf | i_crlf | cmd_crlf;
+assign crlf_in = g_crlf | cmd_q | r_crlf | w_crlf | cmd_t | cmd_s | p_crlf | i_crlf | cmd_crlf | cmd_j;
 
 // data setter
 

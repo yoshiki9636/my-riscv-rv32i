@@ -33,7 +33,8 @@ module if_stage(
 	input stall,
 	input stall_1shot,
 	input stall_dly,
-	input rst_pipe
+	input rst_pipe,
+	output [31:0] pc_data
 	);
 
 // resources
@@ -61,6 +62,7 @@ always @ (posedge clk or negedge rst_n) begin
 		pc_id <= pc_if;
 end
 
+assign pc_data = {pc_if, 2'd0};
 
 // instruction RAM
 

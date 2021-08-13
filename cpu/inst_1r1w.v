@@ -17,7 +17,7 @@ module inst_1r1w(
 	input ram_wen
 	);
 
-// 8x256 1r1w RAM
+// 4x1024 1r1w RAM
 
 reg[31:0] ram[0:1023];
 reg[9:0] radr;

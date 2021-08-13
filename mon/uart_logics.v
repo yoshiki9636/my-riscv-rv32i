@@ -44,6 +44,9 @@ module uart_logics(
 	input pgm_end_set,
 	input pgm_stop,
 	input inst_address_set,
+	input pc_print,
+	input pc_print_sel,
+	input [31:0] pc_data,
 	input inst_data_en
 
 	);
@@ -100,7 +103,6 @@ end
 
 assign i_ram_wadr = trush_running ? trush_adr : cmd_wadr_cntr[11:2];
 assign i_ram_wdata = trush_running ? 32'd0 : uart_data;
-//assign i_ram_wdata = trush_running ? 32'd0 : { 2'd0, cmd_wadr_cntr};
 assign i_ram_wen = inst_data_en | trush_running;
 assign d_ram_wadr = i_ram_wadr;
 assign d_ram_wdata = i_ram_wdata;
@@ -163,11 +165,15 @@ input read_stop;
 input pgm_stop;
 input flushing_wq;
 input dump_end;
+input pc_print;
+input pc_print_sel;
 begin
 	case(status_dump)
 		`D_IDLE :
 			if (read_end_set | pgm_end_set)
 				dump_status = `D_RED1;
+			else if (pc_print)
+				dump_status = `D_WAIT;
 			else
 				dump_status = `D_IDLE;
 		`D_RED1 :
@@ -182,6 +188,8 @@ begin
 				dump_status = `D_WAIT;
 		`D_WAIT :
 			if (read_stop | pgm_stop)
+				dump_status = `D_IDLE;
+			else if (flushing_wq & pc_print_sel)
 				dump_status = `D_IDLE;
 			else if (flushing_wq & dump_end)
 				dump_status = `D_IDLE;
@@ -201,7 +209,10 @@ assign next_status_dump = dump_status(
 							read_stop,
 							pgm_stop,
 							flushing_wq,
-							dump_end);
+							dump_end,
+							pc_print,
+							pc_print_sel
+							);
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
@@ -276,7 +287,7 @@ always @ (posedge clk or negedge rst_n) begin
 end
 */
 
-assign rdata_snd = { data_0, data_1 };//, data_2, data_3 };
+assign rdata_snd = pc_print_sel ? { 32'd0, pc_data} : { data_1, data_0 };
 
 // trashing memory data
 reg [12:2] trash_cntr;
@@ -326,7 +337,7 @@ always @ (posedge clk or negedge rst_n) begin
 		rdata_snd_wait_dly <= rdata_snd_wait;
 end
 
-assign rdata_snd_start = rdata_snd_wait & ~rdata_snd_wait_dly;
+assign rdata_snd_start = (rdata_snd_wait & ~rdata_snd_wait_dly) | pc_print;
 
 
 endmodule

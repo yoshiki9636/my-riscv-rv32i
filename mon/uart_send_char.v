@@ -48,7 +48,7 @@ always @ (posedge clk or negedge rst_n) begin
     if (~rst_n)
         send_cntr <= 6'd0;
 	else if (rdata_snd_start)
-        send_cntr <= 6'd24 + 6'd32;
+        send_cntr <= 6'd18 + 6'd32;
 	else if (crlf_in)
 		send_cntr <= 6'd1 + 6'd32;
 	else if (send_cntr[5] & tx_rdy)
@@ -63,24 +63,24 @@ input [63:0] send_data;
 input [4:0] send_cntr_low;
 begin
 	case(send_cntr_low)
-		5'd24 : send_slice = {1'b0, send_data[63:60] };
-		5'd23 : send_slice = {1'b0, send_data[59:56] };
-		5'd21 : send_slice = {1'b0, send_data[55:52] };
-		5'd20 : send_slice = {1'b0, send_data[51:48] };
-		5'd18 : send_slice = {1'b0, send_data[47:44] };
-		5'd17 : send_slice = {1'b0, send_data[43:40] };
-		5'd15 : send_slice = {1'b0, send_data[39:36] };
-		5'd14 : send_slice = {1'b0, send_data[35:32] };
-		5'd13 : send_slice = 5'h10; // space
-		5'd12 : send_slice = {1'b0, send_data[31:28] };
-		5'd11 : send_slice = {1'b0, send_data[27:24] };
-		5'd09 : send_slice = {1'b0, send_data[23:20] };
-		5'd08 : send_slice = {1'b0, send_data[19:16] };
-		5'd06 : send_slice = {1'b0, send_data[15:12] };
-		5'd05 : send_slice = {1'b0, send_data[11:8] };
-		5'd03 : send_slice = {1'b0, send_data[7:4] };
-		5'd02 : send_slice = {1'b0, send_data[3:0] };
-		5'd01 : send_slice = 5'h11; // CR
+		5'd18 : send_slice = {1'b0, send_data[31:28] };
+		5'd17 : send_slice = {1'b0, send_data[27:24] };
+		5'd16 : send_slice = {1'b0, send_data[23:20] };
+		5'd15 : send_slice = {1'b0, send_data[19:16] };
+		5'd14 : send_slice = {1'b0, send_data[15:12] };
+		5'd13 : send_slice = {1'b0, send_data[11:8] };
+		5'd12 : send_slice = {1'b0, send_data[7:4] };
+		5'd11 : send_slice = {1'b0, send_data[3:0] };
+		5'd10 : send_slice = 5'h10; // space
+		5'd09 : send_slice = {1'b0, send_data[63:60] };
+		5'd08 : send_slice = {1'b0, send_data[59:56] };
+		5'd07 : send_slice = {1'b0, send_data[55:52] };
+		5'd06 : send_slice = {1'b0, send_data[51:48] };
+		5'd05 : send_slice = {1'b0, send_data[47:44] };
+		5'd04 : send_slice = {1'b0, send_data[43:40] };
+		5'd03 : send_slice = {1'b0, send_data[39:36] };
+		5'd02 : send_slice = {1'b0, send_data[35:32] };
+		5'd01: send_slice = 5'h11; // CR
 		5'd00 : send_slice = 5'h12; // LF
 		default : send_slice = 5'h10;
 	endcase

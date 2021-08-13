@@ -30,6 +30,7 @@ module cpu_top(
 	input [31:0] i_ram_wdata,
 	input i_ram_wen,
 	input i_read_sel,
+	output [31:0] pc_data,
 
 	output [11:2] st_adr_io,
 	output [31:0] st_data_io,
@@ -142,7 +143,8 @@ if_stage if_stage (
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe),
+	.pc_data(pc_data)
 	);
 
 id_stage id_stage (

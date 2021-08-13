@@ -17,7 +17,7 @@ module data_1r1w(
 	input [3:0] ram_wen
 	);
 
-// 8x256 1r1w RAM
+// 4x1024 1r1w RAM
 
 reg[7:0] ram0[0:1023];
 reg[7:0] ram1[0:1023];

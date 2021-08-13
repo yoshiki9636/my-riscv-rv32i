@@ -27,6 +27,7 @@ module uart_top(
 	output [31:0] i_ram_wdata,
 	output i_ram_wen,
 	output i_read_sel,
+	input [31:0] pc_data,
 	
 	output cpu_start,
 	output quit_cmd,
@@ -78,6 +79,8 @@ wire tx_fifo_underrun;
 wire tx_wten;
 wire write_address_set;
 wire write_data_en;
+wire pc_print;
+wire pc_print_sel;
 
 wire dump_running;
 wire trush_running;
@@ -154,6 +157,8 @@ uart_rec_char uart_rec_char (
 	.pgm_stop(pgm_stop),
 	.inst_address_set(inst_address_set),
 	.inst_data_en(inst_data_en),
+	.pc_print(pc_print),
+	.pc_print_sel(pc_print_sel),
 	.crlf_in(crlf_in)
 	//.cmd_status(cmd_status),
 	//.data_en(data_en),
@@ -205,6 +210,9 @@ uart_logics uart_logics (
 	.pgm_end_set(pgm_end_set),
 	.pgm_stop(pgm_stop),
 	.inst_address_set(inst_address_set),
+	.pc_print(pc_print),
+	.pc_print_sel(pc_print_sel),
+	.pc_data(pc_data),
 	.inst_data_en(inst_data_en)
 	);
 
