@@ -5,7 +5,7 @@ RISC-V RV32I instruction set CPU for study
 (Currently Japanese document only)
   
 Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのverilog RTL論理および動作環境です。  
-一応Tang Primerを歌っておりますが、clock PLLのみIP使用であり、特殊な記述もないため、  
+一応Tang Primerを謳っておりますが、clock PLLのみIP使用であり、特殊な記述もないため、  
 他のFPGAへの移植も容易と思います。  
   
 1. Version 0.1の制約  
