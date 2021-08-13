@@ -93,8 +93,8 @@ sb x1, 0x0(x2) ; set LED
 ; test finished
 nop
 nop
-;lui x2, 01000 ; loop max
-ori x2, x0, 10 ; loop max
+lui x2, 01000 ; loop max
+;ori x2, x0, 10 ; loop max
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
 lui x4, 0xc0000 ; LED address
