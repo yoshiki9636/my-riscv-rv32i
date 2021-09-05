@@ -7,6 +7,10 @@ RISC-V RV32I instruction set CPU for study
 Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのverilog RTL論理および動作環境です。  
 一応Tang Primerを謳っておりますが、clock PLLのみIP使用であり、特殊な記述もないため、  
 他のFPGAへの移植も容易と思います。  
+
+※2021/9/5
+Xilinx Atrix-7のDigilent Arty A7での設定と、MMCMの記述を追加しました。MMCMは90MHzで動作確認しました。
+現在fpga_top.vはArty A7設定になっております。Tang Primerでの使用時はifdef設定の変更をお願いします。
   
 1. Version 0.1の制約  
 以下の制約があります。  
@@ -36,11 +40,13 @@ Intel FPGA用に配布されている、Modelsim 10.5b で動作確認してお�
 Tang Primer専用のIDEを使用して合成、FPGAへの書き込みを行います。詳しくは、SiPEEDのページを参照ください。  
 https://tang.sipeed.com/en/  
   
-(1) ssyn/ディレクトリを作成し、cpu/ fpga/ io/ mon/ syn/の内容をコピーします。  
+(1) ssyn/ディレクトリを作成し、cpu/ fpga/ io/ mon/ syn/の内容をコピーします。fpga_top.v内のifdefはTANG_PRIMERを有効にしてください。  
   
 (2) IDEを立ち上げ、プロジェクトを作成、ssynをディレクトリに指定して、すべてのverilogファイルを指定します。  
   
 (3) PLLの追加が必要なので、Tools->IP Generatorを選択し、Create New IPから、PLLを選択します。名称はpll、入力24MHz、出力36MHzとして作成します。  
+  
+(3.1) ssyn/uart_if.vの周波数設定が36MHz設定にします。  
   
 (4) 後は用法通りに合成、書き込みをします。  
   
@@ -71,7 +77,22 @@ https://tang.sipeed.com/en/
 	i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
 	j : print current PC value                     : format:  j
 
+2.4 Arty A7 Synthesis & Run  
 
+Digilent Arty A7を使う場合の合成方法のメモです。Xilinx Vivadoを使用します。詳しくはArty A7の設計ドキュメントを探してください。
+
+(1) ssyn/ディレクトリを作成し、cpu/ fpga/ io/ mon/ をコピーしてください。ssyn/riscv_io_pins.xdcをコピーします。fpga_top.vのifdefをARTY_A7を有効にしてください。
+　　
+(2) Vivadoを立ち上げ、projectを作成、ssynの中のRTLを指定し、constraintsとして、riscv_io_pins.xdcを指定します。　　
+
+(3) MMCMの追加が必要なので、IPカタログから追加します。周波数は入力100MHz、出力90MHzで動作を確認しております。
+　　
+(3.1) ssyn/uart_if.vの周波数設定を90MHzにします。  
+  
+(4) Vivadoのお作法で合成以下を行い、Arty A7に書き込みます。
+  
+(5) Arty A7はUSB接続がUARTとして使用できるので、特にUART変換器は必要ありません。あとはTang Primerの方法(7)からと同一です。
+  
 -----  
 Design Memo ( Japanese )  
   
