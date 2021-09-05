@@ -8,6 +8,9 @@
  * @version		0.1
  */
 
+//`define TANG_PRIMER
+`define ARTY_A7
+
 module fpga_top(
 	input clkin,
 	input rst_n,
@@ -41,13 +44,31 @@ wire quit_cmd;
 wire [31:0] pc_data;
 
 wire clk;
-wire clklock;
 wire stdby = 1'b0 ;
 // for debug
 wire tx_fifo_full;
 wire tx_fifo_overrun;
 wire tx_fifo_underrun;
 
+
+`ifdef ARTY_A7
+wire locked;
+ // Instantiation of the clocking network
+ //--------------------------------------
+  clk_wiz_0 clknetwork
+   (
+    // Clock out ports
+    .clk_out1           (clk),
+    // Status and control signals
+    .resetn              (rst_n),
+    .locked             (locked),
+   // Clock in ports
+    .clk_in1            (clkin)
+);
+`endif
+
+`ifdef TANG_PRIMER
+wire clklock;
 pll pll (
 	.refclk(clkin),
 	.reset(~rst_n),
@@ -55,6 +76,7 @@ pll pll (
 	.extlock(clklock),
 	.clk0_out(clk)
 	);
+`endif
 
 cpu_top cpu_top (
 	.clk(clk),
