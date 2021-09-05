@@ -112,7 +112,7 @@ uart_if uart_if (
 	.tx_fifo_full(tx_fifo_full),
 	.tx_fifo_overrun(tx_fifo_overrun),
 	.tx_fifo_underrun(tx_fifo_underrun),
-	.rx_fifo_rcntr(rx_fifo_rcntr)
+	.rx_fifo_rcntrs(rx_fifo_rcntr)
 	);
 
 uart_loop uart_loop (
