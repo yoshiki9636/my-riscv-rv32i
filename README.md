@@ -9,7 +9,7 @@ Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのve
 他のFPGAへの移植も容易と思います。  
 
 ※2021/9/5
-Xilinx Atrix-7のDigilent Arty A7での設定と、MMCMの記述を追加しました。MMCMは90MHzで動作確認しました。
+Xilinx Artix-7のDigilent Arty A7での設定と、MMCMの記述を追加しました。MMCMは90MHzで動作確認しました。
 現在fpga_top.vはArty A7設定になっております。Tang Primerでの使用時はifdef設定の変更をお願いします。
   
 1. Version 0.1の制約  
