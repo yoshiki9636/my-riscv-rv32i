@@ -10,20 +10,20 @@
 
 module data_1r1w(
 	input clk,
-	input [9:0] ram_radr,
+	input [11:0] ram_radr,
 	output [31:0] ram_rdata,
-	input [9:0] ram_wadr,
+	input [11:0] ram_wadr,
 	input [31:0] ram_wdata,
 	input [3:0] ram_wen
 	);
 
 // 4x1024 1r1w RAM
 
-reg[7:0] ram0[0:1023];
-reg[7:0] ram1[0:1023];
-reg[7:0] ram2[0:1023];
-reg[7:0] ram3[0:1023];
-reg[9:0] radr;
+reg[7:0] ram0[0:4095];
+reg[7:0] ram1[0:4095];
+reg[7:0] ram2[0:4095];
+reg[7:0] ram3[0:4095];
+reg[11:0] radr;
 
 always @ (posedge clk) begin
 	if (ram_wen[0])
