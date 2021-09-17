@@ -6,6 +6,7 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
+ * @version		0.2 add part of csr instructions
  */
 
 module id_stage(
@@ -48,6 +49,7 @@ module id_stage(
     output reg cmd_csr_ex,
     output reg [11:0] csr_ofs_ex,
 	output reg [4:0] csr_uimm_ex,
+	output reg [2:0] csr_op2_ex,
     output reg cmd_ecall_ex,
     output reg cmd_ebreak_ex,
     output reg cmd_uret_ex,
@@ -278,6 +280,8 @@ wire cmd_sfence_id = dc_op1_11100 & dc_op2_000 & dc_notc & dc_op3_00010 & dc_op5
 wire cmd_csr_id = dc_op1_11100 & ~dc_op2_000 & dc_notc;
 wire [11:0] csr_ofs_id = inst_ofs_11_0_l;
 wire [4:0] csr_uimm_id = inst_uimm;
+// need to see dc_op2_001 - dc_op2_111
+wire [2:0] csr_op2_id = inst_op2;
 
 // ecall
 wire cmd_ec_id  = dc_op1_11100 &  dc_op2_000 & dc_notc & dc_zero_26_25 & dc_zero_19_15 & dc_zero_11_7;
@@ -404,6 +408,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_csr_ex <= 1'b0;
         csr_ofs_ex <= 12'd0;
 		csr_uimm_ex <= 5'd0;
+		csr_op2_ex <= 3'd0;
         cmd_ecall_ex <= 1'b0;
         cmd_ebreak_ex <= 1'b0;
         cmd_uret_ex <= 1'b0;
@@ -445,6 +450,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_csr_ex <= 1'b0;
         csr_ofs_ex <= 12'd0;
 		csr_uimm_ex <= 5'd0;
+		csr_op2_ex <= 3'd0;
         cmd_ecall_ex <= 1'b0;
         cmd_ebreak_ex <= 1'b0;
         cmd_uret_ex <= 1'b0;
@@ -486,6 +492,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_csr_ex <= cmd_csr_id;
         csr_ofs_ex <= csr_ofs_id;
 		csr_uimm_ex <= csr_uimm_id;
+		csr_op2_ex <= csr_po2_id;
         cmd_ecall_ex <= cmd_ecall_id;
         cmd_ebreak_ex <= cmd_ebreak_id;
         cmd_uret_ex <= cmd_uret_id;

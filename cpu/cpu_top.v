@@ -58,12 +58,14 @@ wire [31:0] wbk_data_wb2;
 wire [31:0] wbk_data_wb;
 wire [31:12] lui_auipc_imm_ex;
 wire [31:2] jmp_adr_ex;
+wire [31:2] csr_mtvec_ex;
 wire [31:2] pc_ex;
 wire [31:2] pc_id;
 wire [3:0] fence_pred_ex;
 wire [3:0] fence_succ_ex;
 wire [4:0] alui_shamt_ex;
 wire [4:0] csr_uimm_ex;
+wire [2:0] csr_op2_ex;
 wire [4:0] inst_rs1_id;
 wire [4:0] inst_rs2_id;
 wire [4:0] rd_adr_ex;
@@ -103,6 +105,7 @@ wire hit_rs2_idwb_ex;
 wire inst_rs1_valid;
 wire inst_rs2_valid;
 wire jmp_condition_ex;
+wire ecall_condition_ex;
 wire jmp_purge_ma;
 wire nohit_rs1_ex;
 wire nohit_rs2_ex;
@@ -132,6 +135,8 @@ if_stage if_stage (
 	.pc_id(pc_id),
 	.jmp_condition_ex(jmp_condition_ex),
 	.jmp_adr_ex(jmp_adr_ex),
+	.ecall_condition_ex(ecall_condition_ex),
+	.csr_mtvec_ex(csr_mtvec_ex),
 	.i_ram_radr(i_ram_radr),
 	.i_ram_rdata(i_ram_rdata),
 	.i_ram_wadr(i_ram_wadr),
@@ -183,6 +188,7 @@ id_stage id_stage (
 	.cmd_csr_ex(cmd_csr_ex),
 	.csr_ofs_ex(csr_ofs_ex),
 	.csr_uimm_ex(csr_uimm_ex),
+	.csr_op2_ex(csr_op2_ex),
 	.cmd_ecall_ex(cmd_ecall_ex),
 	.cmd_ebreak_ex(cmd_ebreak_ex),
 	.cmd_uret_ex(cmd_uret_ex),
@@ -239,6 +245,7 @@ ex_stage ex_stage (
 	.cmd_csr_ex(cmd_csr_ex),
 	.csr_ofs_ex(csr_ofs_ex),
 	.csr_uimm_ex(csr_uimm_ex),
+	.csr_op2_ex(csr_op2_ex),
 	.cmd_ecall_ex(cmd_ecall_ex),
 	.cmd_ebreak_ex(cmd_ebreak_ex),
 	.cmd_uret_ex(cmd_uret_ex),
@@ -266,6 +273,8 @@ ex_stage ex_stage (
 	.ldst_code_ma(ldst_code_ma),
 	.jmp_adr_ex(jmp_adr_ex),
 	.jmp_condition_ex(jmp_condition_ex),
+	.ecall_condition_ex(ecall_condition_ex),
+	.csr_mtvec_ex(csr_mtvec_ex),
 	.jmp_purge_ma(jmp_purge_ma),
 	.stall(stall),
 	.rst_pipe(rst_pipe)

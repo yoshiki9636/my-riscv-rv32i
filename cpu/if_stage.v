@@ -6,6 +6,7 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
+ * @version		0.2 add ecall
  */
 
 module if_stage(
@@ -17,6 +18,8 @@ module if_stage(
 	// from EX stage : jmp/br
 	input jmp_condition_ex,
 	input [31:2] jmp_adr_ex,
+	input ecall_condition_ex,
+	input [31:2] csr_mtvec_ex,
 	// from monitor
 	//output [11:2] inst_radr_if,
 	//input [31:0] inst_rdata_id,	
@@ -41,6 +44,8 @@ module if_stage(
 // PC
 
 reg [31:2] pc_if;
+wire jmp_cond = ecall_condition_ex | jmp_condition_ex;
+wire [31:2] jmp_adr = ecall_condition_ex ? csr_mtvec_ex : jmp_adr_ex;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
@@ -49,8 +54,12 @@ always @ (posedge clk or negedge rst_n) begin
 		pc_if <= start_adr;
 	else if (stall)
 		pc_if <= pc_if;	
-	else if (jmp_condition_ex)
-		pc_if <= jmp_adr_ex;
+	//else if (ecall_condition_ex)
+		//pc_if <= csr_mtvec_ex;
+	//else if (jmp_condition_ex)
+		//pc_if <= jmp_adr_ex;
+	else if (jmp_cond)
+		pc_if <= jmp_adr;
 	else
 		pc_if <= pc_if + 30'd1;
 end
