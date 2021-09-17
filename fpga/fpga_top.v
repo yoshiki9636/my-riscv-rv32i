@@ -20,15 +20,15 @@ module fpga_top(
 
 	);
 
-wire [11:2] d_ram_radr;
-wire [11:2] d_ram_wadr;
+wire [13:2] d_ram_radr;
+wire [13:2] d_ram_wadr;
 wire [31:0] d_ram_rdata;
 wire [31:0] d_ram_wdata;
 wire d_ram_wen;
 wire d_read_sel;
 
-wire [11:2] i_ram_radr;
-wire [11:2] i_ram_wadr;
+wire [13:2] i_ram_radr;
+wire [13:2] i_ram_wadr;
 wire [31:0] i_ram_rdata;
 wire [31:0] i_ram_wdata;
 wire i_ram_wen;
