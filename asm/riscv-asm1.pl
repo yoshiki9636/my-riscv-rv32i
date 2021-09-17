@@ -96,6 +96,12 @@ while(<>) {
 		$pc += 4; }
 	elsif (/^\s*bgeu\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$pc += 4; }
+	elsif (/^\s*csrr[wsc]\s+x(\d+),\s*(\w+),\s*x(\d+)/) {
+		$pc += 4; }
+	elsif (/^\s*csrr[wsc]i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
+		$pc += 4; }
+	elsif (/^\s*ecall/) {
+		$pc += 4; }
 }
 
 $ARGV[0] = $name;
@@ -455,6 +461,29 @@ while(<>) {
 		$op1 = 0x18 << 2;
 		$op2 = 0x7 << 12;
 		$code = $ofs1 + $ofs2 + $ofs3 + $ofs4 + $rs2 + $rs1 + $op1 + $op2 + 3;
+	}
+	elsif (/^\s*csrr([wsc])\s+x(\d+),\s*(\w+),\s*x(\d+)/) {
+		$rd = $2 << 7;
+		$rs1 = $4 << 15;
+		$op1 = 0x73;
+		$op2 = ($1 eq "w") ? 1 :
+		       ($1 eq "s") ? 2 : 3;
+		$op2 = $op2 << 12;
+		$ofs = $3 << 20;
+		$code = $rs1 + $rd + $op1 + $op2 + $ofs;
+	}
+	elsif (/^\s*csrr([wsc])i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
+		$rd = $2 << 7;
+		$imm = $4 << 15;
+		$op1 = 0x73;
+		$op2 = ($1 eq "w") ? 5 :
+		       ($1 eq "s") ? 6 : 7;
+		$op2 = $op2 << 12;
+		$ofs = $3 << 20;
+		$code = $rd + $imm + $op1 + $op2 + $ofs;
+	}
+	elsif (/^\s*ecall/) {
+		$code = 0x73;
 	}
 	else {
 		print "ERROR no format found : $_\n";
