@@ -492,7 +492,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_csr_ex <= cmd_csr_id;
         csr_ofs_ex <= csr_ofs_id;
 		csr_uimm_ex <= csr_uimm_id;
-		csr_op2_ex <= csr_po2_id;
+		csr_op2_ex <= csr_op2_id;
         cmd_ecall_ex <= cmd_ecall_id;
         cmd_ebreak_ex <= cmd_ebreak_id;
         cmd_uret_ex <= cmd_uret_id;
