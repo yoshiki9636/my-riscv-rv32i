@@ -48,9 +48,7 @@ wire [2:0] alu_code_ex;
 wire [2:0] ld_code_wb;
 wire [2:0] ldst_code_ma;
 wire [31:0] inst_id;
-wire [31:0] ld_data_ma;
 wire [31:0] ld_data_wb;
-wire [31:0] rd_data_ex;
 wire [31:0] rd_data_ma;
 wire [31:0] rd_data_wb;
 wire [31:0] rs1_data_ex;
@@ -98,11 +96,9 @@ wire cmd_st_ex;
 wire cmd_st_ma;
 wire cmd_uret_ex;
 wire cmd_wfi_ex;
-wire hit_rs1_ldex_ex;
 wire hit_rs1_idex_ex;
 wire hit_rs1_idma_ex;
 wire hit_rs1_idwb_ex;
-wire hit_rs2_ldex_ex;
 wire hit_rs2_idex_ex;
 wire hit_rs2_idma_ex;
 wire hit_rs2_idwb_ex;
@@ -117,6 +113,8 @@ wire rst_pipe;
 wire stall;
 wire stall_1shot;
 wire stall_dly;
+wire stall_ld;
+wire stall_ld_ex;
 wire wbk_rd_reg_ex;
 wire wbk_rd_reg_ma;
 wire wbk_rd_reg_wb;
@@ -152,6 +150,8 @@ if_stage if_stage (
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
+	.stall_ld(stall_ld),
+	.stall_ld_ex(stall_ld_ex),
 	.rst_pipe(rst_pipe),
 	.pc_data(pc_data)
 	);
@@ -212,6 +212,8 @@ id_stage id_stage (
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
+	.stall_ld(stall_ld),
+	.stall_ld_ex(stall_ld_ex),
 	.rst_pipe(rst_pipe)
 	);
 
@@ -258,12 +260,10 @@ ex_stage ex_stage (
 	.cmd_wfi_ex(cmd_wfi_ex),
 	.rd_adr_ex(rd_adr_ex),
 	.wbk_rd_reg_ex(wbk_rd_reg_ex),
-	.hit_rs1_ldex_ex(hit_rs1_ldex_ex),
 	.hit_rs1_idex_ex(hit_rs1_idex_ex),
 	.hit_rs1_idma_ex(hit_rs1_idma_ex),
 	.hit_rs1_idwb_ex(hit_rs1_idwb_ex),
 	.nohit_rs1_ex(nohit_rs1_ex),
-	.hit_rs2_ldex_ex(hit_rs2_ldex_ex),
 	.hit_rs2_idex_ex(hit_rs2_idex_ex),
 	.hit_rs2_idma_ex(hit_rs2_idma_ex),
 	.hit_rs2_idwb_ex(hit_rs2_idwb_ex),
@@ -273,9 +273,7 @@ ex_stage ex_stage (
 	.cmd_ld_ma(cmd_ld_ma),
 	.cmd_st_ma(cmd_st_ma),
 	.rd_adr_ma(rd_adr_ma),
-	.rd_data_ex(rd_data_ex),
 	.rd_data_ma(rd_data_ma),
-	.ld_data_ma(ld_data_ma),
 	.wbk_rd_reg_ma(wbk_rd_reg_ma),
 	.st_data_ma(st_data_ma),
 	.ldst_code_ma(ldst_code_ma),
@@ -294,7 +292,6 @@ ma_stage ma_stage (
 	.cmd_ld_ma(cmd_ld_ma),
 	.cmd_st_ma(cmd_st_ma),
 	.rd_adr_ma(rd_adr_ma),
-	.rd_data_ex(rd_data_ex),
 	.rd_data_ma(rd_data_ma),
 	.wbk_rd_reg_ma(wbk_rd_reg_ma),
 	.st_data_ma(st_data_ma),
@@ -304,7 +301,6 @@ ma_stage ma_stage (
 	.rd_adr_wb(rd_adr_wb),
 	.rd_data_wb(rd_data_wb),
 	.wbk_rd_reg_wb(wbk_rd_reg_wb),
-	.ld_data_ma(ld_data_ma),
 	.ld_data_wb(ld_data_wb),
 	.d_ram_radr(d_ram_radr),
 	.d_ram_rdata(d_ram_rdata),
@@ -348,16 +344,16 @@ forwarding forwarding (
 	.wbk_rd_reg_ma(wbk_rd_reg_ma),
 	.rd_adr_wb(rd_adr_wb),
 	.wbk_rd_reg_wb(wbk_rd_reg_wb),
-	.hit_rs1_ldex_ex(hit_rs1_ldex_ex),
 	.hit_rs1_idex_ex(hit_rs1_idex_ex),
 	.hit_rs1_idma_ex(hit_rs1_idma_ex),
 	.hit_rs1_idwb_ex(hit_rs1_idwb_ex),
 	.nohit_rs1_ex(nohit_rs1_ex),
-	.hit_rs2_ldex_ex(hit_rs2_ldex_ex),
 	.hit_rs2_idex_ex(hit_rs2_idex_ex),
 	.hit_rs2_idma_ex(hit_rs2_idma_ex),
 	.hit_rs2_idwb_ex(hit_rs2_idwb_ex),
 	.nohit_rs2_ex(nohit_rs2_ex),
+	.stall_ld(stall_ld),
+	.stall_ld_ex(stall_ld_ex),
 	.stall(stall),
 	.rst_pipe(rst_pipe)
 	);

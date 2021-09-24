@@ -16,7 +16,6 @@ module ma_stage(
     input cmd_ld_ma,
     input cmd_st_ma,
 	input [4:0] rd_adr_ma,
-	input [31:0] rd_data_ex,
 	input [31:0] rd_data_ma,
 	input wbk_rd_reg_ma,
 	input [31:0] st_data_ma,
@@ -27,8 +26,7 @@ module ma_stage(
 	output reg [4:0] rd_adr_wb,
 	output reg [31:0] rd_data_wb,
 	output reg wbk_rd_reg_wb,
-	output [31:0] ld_data_ma,
-	output reg [31:0] ld_data_wb,
+	output [31:0] ld_data_wb,
 	// to Memory
 	input [13:2] d_ram_radr,
 	output [31:0] d_ram_rdata,
@@ -119,13 +117,13 @@ assign st_data_io = st_wdata;
 // data memory
 reg  [31:0] ld_data_roll;
 wire sel_data_rd_ma;
-wire [13:2] data_radr_ex;
-wire [31:0] data_rdata_ma;
+wire [13:2] data_radr_ma;
+wire [31:0] data_rdata_wb;
 wire [13:2] data_wadr_ma;
 wire [31:0] data_wdata_ma;
 wire [3:0] data_we_ma;
 
-assign data_radr_ex = d_read_sel ? d_ram_radr : rd_data_ex[13:2];
+assign data_radr_ma = d_read_sel ? d_ram_radr : rd_data_ma[13:2];
 assign data_wadr_ma = d_ram_wen ? d_ram_wadr : rd_data_ma[13:2];
 assign data_wdata_ma = d_ram_wen ? d_ram_wdata : st_wdata;
 assign data_we_ma = d_ram_wen ? 4'b1111 : st_we_mem;
@@ -133,8 +131,8 @@ assign sel_data_rd_ma = cmd_ld_ma;
 
 data_1r1w data_1r1w (
 	.clk(clk),
-	.ram_radr(data_radr_ex),
-	.ram_rdata(data_rdata_ma),
+	.ram_radr(data_radr_ma),
+	.ram_rdata(data_rdata_wb),
 	.ram_wadr(data_wadr_ma),
 	.ram_wdata(data_wdata_ma),
 	.ram_wen(data_we_ma)
@@ -146,11 +144,11 @@ always @ ( posedge clk or negedge rst_n) begin
 	else if (rst_pipe)
         ld_data_roll <= 32'd0;
 	else if (stall_1shot)
-        ld_data_roll <= data_rdata_ma;
+        ld_data_roll <= data_rdata_wb;
 end
 
-assign ld_data_ma = stall_dly ? ld_data_roll : data_rdata_ma;
-assign d_ram_rdata = data_rdata_ma;
+assign ld_data_wb = stall_dly ? ld_data_roll : data_rdata_wb;
+assign d_ram_rdata = data_rdata_wb;
 
 // FF to WB
 
@@ -158,7 +156,6 @@ always @ ( posedge clk or negedge rst_n) begin
 	if (~rst_n) begin
         cmd_ld_wb <= 1'b0;
 		ld_code_wb <= 3'd0;
-		ld_data_wb <= 32'd0;
 		rd_adr_wb <= 5'd0;
 		rd_data_wb <= 32'd0;
 		wbk_rd_reg_wb <= 1'b0;
@@ -166,7 +163,6 @@ always @ ( posedge clk or negedge rst_n) begin
 	else if (rst_pipe) begin
         cmd_ld_wb <= 1'b0;
 		ld_code_wb <= 3'd0;
-		ld_data_wb <= 32'd0;
 		rd_adr_wb <= 5'd0;
 		rd_data_wb <= 32'd0;
 		wbk_rd_reg_wb <= 1'b0;
@@ -174,7 +170,6 @@ always @ ( posedge clk or negedge rst_n) begin
 	else if (~stall) begin
         cmd_ld_wb <= cmd_ld_ma;
 		ld_code_wb <= ldst_code_ma;
-		ld_data_wb <= ld_data_ma;
 		rd_adr_wb <= rd_adr_ma;
 		rd_data_wb <= rd_data_ma;
 		wbk_rd_reg_wb <= wbk_rd_reg_ma;

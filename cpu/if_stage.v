@@ -36,6 +36,8 @@ module if_stage(
 	input stall,
 	input stall_1shot,
 	input stall_dly,
+	input stall_ld,
+	input stall_ld_ex,
 	input rst_pipe,
 	output [31:0] pc_data
 	);
@@ -52,7 +54,7 @@ always @ (posedge clk or negedge rst_n) begin
 		pc_if <= 30'd0;
 	else if (cpu_start)
 		pc_if <= start_adr;
-	else if (stall)
+	else if (stall | stall_ld)
 		pc_if <= pc_if;	
 	else if (jmp_cond)
 		pc_if <= jmp_adr;
@@ -95,11 +97,11 @@ always @ (posedge clk or negedge rst_n) begin
         inst_roll <= 32'd0;
 	else if (rst_pipe)
         inst_roll <= 32'd0;	
-	else if (stall_1shot)
+	else if (stall_1shot | stall_ld)
         inst_roll <= inst_rdata_id;
 end
 
-assign inst_id = stall_dly ? inst_roll : inst_rdata_id;
+assign inst_id = (stall_dly | stall_ld_ex) ? inst_roll : inst_rdata_id;
 
 
 endmodule

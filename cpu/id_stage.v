@@ -73,6 +73,8 @@ module id_stage(
 	input stall,
 	input stall_1shot,
 	input stall_dly,
+	input stall_ld,
+	input stall_ld_ex,
 	input rst_pipe
 
 	);
@@ -364,15 +366,14 @@ always @ (posedge clk or negedge rst_n) begin
         rs1_data_roll <= 32'd0;
         rs2_data_roll <= 32'd0;
 	end
-	else if (stall_1shot) begin
+	else if (stall_1shot | stall_ld) begin
         rs1_data_roll <= rs1_data_st;
         rs2_data_roll <= rs2_data_st;
 	end
 end
 
-assign rs1_data_ex = stall_dly ? rs1_data_roll : rs1_data_st;
-assign rs2_data_ex = stall_dly ? rs2_data_roll : rs2_data_st;
-
+assign rs1_data_ex = (stall_dly | stall_ld_ex) ? rs1_data_roll : rs1_data_st;
+assign rs2_data_ex = (stall_dly | stall_ld_ex) ? rs2_data_roll : rs2_data_st;
 
 // FF to EX stage
 
@@ -462,43 +463,43 @@ always @ (posedge clk or negedge rst_n) begin
 		pc_ex <= 30'd0;
      end
      else if (~stall) begin
-        cmd_lui_ex <= cmd_lui_id;
-        cmd_auipc_ex <= cmd_auipc_id;
+        cmd_lui_ex <= cmd_lui_id & ~stall_ld;
+        cmd_auipc_ex <= cmd_auipc_id & ~stall_ld;
         lui_auipc_imm_ex <= lui_auipc_imm_id;
-        cmd_ld_ex <= cmd_ld_id;
+        cmd_ld_ex <= cmd_ld_id & ~stall_ld;
         //ld_bw_ex <= ld_bw_id;
         ld_alui_ofs_ex <= ld_ofs_id;
-        cmd_alui_ex <= cmd_alui_id;
-        cmd_alui_shamt_ex <= cmd_alui_shamt_id;
-        cmd_alu_ex <= cmd_alu_id;
-        cmd_alu_add_ex <= cmd_alu_add_id;
-        cmd_alu_sub_ex <= cmd_alu_sub_id;
+        cmd_alui_ex <= cmd_alui_id & ~stall_ld;
+        cmd_alui_shamt_ex <= cmd_alui_shamt_id & ~stall_ld;
+        cmd_alu_ex <= cmd_alu_id & ~stall_ld;
+        cmd_alu_add_ex <= cmd_alu_add_id & ~stall_ld;
+        cmd_alu_sub_ex <= cmd_alu_sub_id & ~stall_ld;
         alu_code_ex <= alu_code_id;
         //alui_imm_ex <= alui_imm_id;
         alui_shamt_ex <= alui_shamt_id;
-        cmd_st_ex <= cmd_st_id;
+        cmd_st_ex <= cmd_st_id & ~stall_ld;
         st_ofs_ex <= st_ofs_id;
-        cmd_jal_ex <= cmd_jal_id;
+        cmd_jal_ex <= cmd_jal_id & ~stall_ld;
         jal_ofs_ex <= jal_ofs_id;
-        cmd_jalr_ex <= cmd_jalr_id;
+        cmd_jalr_ex <= cmd_jalr_id & ~stall_ld;
         jalr_ofs_ex <= jalr_ofs_id;
-        cmd_br_ex <= cmd_br_id;
+        cmd_br_ex <= cmd_br_id & ~stall_ld;
         br_ofs_ex <= br_ofs_id;
-        cmd_fence_ex <= cmd_fence_id;
-        cmd_fencei_ex <= cmd_fencei_id;
+        cmd_fence_ex <= cmd_fence_id & ~stall_ld;
+        cmd_fencei_ex <= cmd_fencei_id & ~stall_ld;
         fence_succ_ex <= fence_succ_id;
         fence_pred_ex <= fence_pred_id;
-        cmd_sfence_ex <= cmd_sfence_id;
-        cmd_csr_ex <= cmd_csr_id;
+        cmd_sfence_ex <= cmd_sfence_id & ~stall_ld;
+        cmd_csr_ex <= cmd_csr_id & ~stall_ld;
         csr_ofs_ex <= csr_ofs_id;
 		csr_uimm_ex <= csr_uimm_id;
 		csr_op2_ex <= csr_op2_id;
-        cmd_ecall_ex <= cmd_ecall_id;
-        cmd_ebreak_ex <= cmd_ebreak_id;
-        cmd_uret_ex <= cmd_uret_id;
-        cmd_sret_ex <= cmd_sret_id;
-        cmd_mret_ex <= cmd_mret_id;
-        cmd_wfi_ex <= cmd_wfi_id;
+        cmd_ecall_ex <= cmd_ecall_id & ~stall_ld;
+        cmd_ebreak_ex <= cmd_ebreak_id & ~stall_ld;
+        cmd_uret_ex <= cmd_uret_id & ~stall_ld;
+        cmd_sret_ex <= cmd_sret_id & ~stall_ld;
+        cmd_mret_ex <= cmd_mret_id & ~stall_ld;
+        cmd_wfi_ex <= cmd_wfi_id & ~stall_ld;
 		rd_adr_ex <= rd_adr_id;
 		wbk_rd_reg_ex <= wbk_rd_reg_id;
 		pc_ex <= pc_id;

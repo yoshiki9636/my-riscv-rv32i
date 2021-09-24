@@ -58,17 +58,14 @@ module ex_stage(
 	input wbk_rd_reg_ex,
 	
 	// from forwarding
-	input hit_rs1_ldex_ex,
 	input hit_rs1_idex_ex,
 	input hit_rs1_idma_ex,
 	input hit_rs1_idwb_ex,
 	input nohit_rs1_ex,
-	input hit_rs2_ldex_ex,
 	input hit_rs2_idex_ex,
 	input hit_rs2_idma_ex,
 	input hit_rs2_idwb_ex,
 	input nohit_rs2_ex,
-	input [31:0] ld_data_ma,
 	input [31:0] wbk_data_wb,
 	input [31:0] wbk_data_wb2,
 
@@ -76,7 +73,6 @@ module ex_stage(
     output reg cmd_ld_ma,
     output reg cmd_st_ma,
 	output reg [4:0] rd_adr_ma,
-	output [31:0] rd_data_ex,
 	output reg [31:0] rd_data_ma,
 	output reg wbk_rd_reg_ma,
 	output reg [31:0] st_data_ma,
@@ -126,12 +122,10 @@ wire [31:0] br_ofs = {{ 19{ br_ofs_ex[12] }}, br_ofs_ex, 1'b0 };
 
 // forwarding selector
 
-wire [31:0] rs1_fwd = hit_rs1_ldex_ex ? ld_data_ma :
-                      hit_rs1_idex_ex ? rd_data_ma :
+wire [31:0] rs1_fwd = hit_rs1_idex_ex ? rd_data_ma :
                       hit_rs1_idma_ex ? wbk_data_wb : wbk_data_wb2;
 
-wire [31:0] rs2_fwd = hit_rs2_ldex_ex ? ld_data_ma :
-                      hit_rs2_idex_ex ? rd_data_ma :
+wire [31:0] rs2_fwd = hit_rs2_idex_ex ? rd_data_ma :
                       hit_rs2_idma_ex ? wbk_data_wb : wbk_data_wb2;
 
 // ALU selector
@@ -268,11 +262,11 @@ wire [31:0] alu_sel = alu_selector( alu_code,
 // Lui
 wire [31:0] lui_data = { lui_auipc_imm_ex, 12'd0 };
 
-assign rd_data_ex = cmd_lui_ex ? lui_data :
-                    (cmd_jal_ex | cmd_jalr_ex) ? pcp4_ex :
-                    cmd_auipc_ex ? jump_adr :
-                    cmd_csr_ex ? csr_rd_data :
-                    alu_sel;
+wire [31:0] rd_data_ex = cmd_lui_ex ? lui_data :
+                         (cmd_jal_ex | cmd_jalr_ex) ? pcp4_ex :
+						 cmd_auipc_ex ? jump_adr :
+                         cmd_csr_ex ? csr_rd_data :
+                         alu_sel;
 
 // jamp/br
 
