@@ -25,6 +25,10 @@ fpga_top fpga_top (
 	);
 
 initial $readmemh("./test.txt", fpga_top.cpu_top.if_stage.inst_1r1w.ram);
+initial $readmemh("./test0.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram0);
+initial $readmemh("./test1.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram1);
+initial $readmemh("./test2.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram2);
+initial $readmemh("./test3.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram3);
 
 initial clkin = 0;
 
