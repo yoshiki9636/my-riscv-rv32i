@@ -1,5 +1,5 @@
 _start:
-	ori sp,zero,0x200
+	lui sp,0x4
         j main
         nop ;
         nop ;
