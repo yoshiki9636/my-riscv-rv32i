@@ -14,6 +14,7 @@ reg clkin;
 reg rst_n;
 wire rx = 1'b0;
 wire tx;
+reg interrupt_0;
 wire [2:0] rgb_led;
 
 fpga_top fpga_top (
@@ -21,6 +22,7 @@ fpga_top fpga_top (
         .rst_n(rst_n),
 		.rx(rx),
         .tx(tx),
+		.interrupt_0(interrupt_0),
         .rgb_led(rgb_led)
 	);
 
@@ -38,6 +40,7 @@ always #5 clkin <= ~clkin;
 initial begin
 	force fpga_top.cpu_start = 1'b0;
 	rst_n = 1'b1;
+	interrupt_0 = 1'b0;
 #10
 	rst_n = 1'b0;
 #20
@@ -49,5 +52,7 @@ initial begin
 #500000
 	$stop;
 end
+
+
 
 endmodule

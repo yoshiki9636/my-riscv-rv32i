@@ -34,9 +34,15 @@ module cpu_top(
 
 	output [11:2] st_adr_io,
 	output [31:0] st_data_io,
-	output [3:0] st_we_io
+	output [3:0] st_we_io,
+
+	input interrupt_0
 
 	);
+
+`define M_MODE = 2'b11
+`define S_MODE = 2'b01
+`define U_MODE = 2'b00
 
 wire [11:0] csr_ofs_ex;
 wire [11:0] jalr_ofs_ex;
@@ -119,6 +125,16 @@ wire wbk_rd_reg_ex;
 wire wbk_rd_reg_ma;
 wire wbk_rd_reg_wb;
 
+wire [31:2] csr_mepc;
+wire [31:2] csr_sepc;
+// from somewhere...
+wire [1:0] g_interrupt_priv = `M_MODE; // temp
+wire [1:0] g_current_priv = `M_MODE; // temp
+wire g_interrupt;
+wire csr_meie;
+wire csr_mtie;
+wire csr_msie;
+
 cpu_status cpu_status (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -138,7 +154,13 @@ if_stage if_stage (
 	.jmp_condition_ex(jmp_condition_ex),
 	.jmp_adr_ex(jmp_adr_ex),
 	.ecall_condition_ex(ecall_condition_ex),
+	.cmd_mret_ex(cmd_mret_ex),
+	.csr_mepc(csr_mepc),
+	.cmd_sret_ex(cmd_sret_ex),
+	.csr_sepc(csr_sepc),
+	.cmd_uret_ex(cmd_uret_ex),
 	.csr_mtvec_ex(csr_mtvec_ex),
+    .g_interrupt(g_interrupt),
 	.i_ram_radr(i_ram_radr),
 	.i_ram_rdata(i_ram_rdata),
 	.i_ram_wadr(i_ram_wadr),
@@ -281,6 +303,14 @@ ex_stage ex_stage (
 	.jmp_condition_ex(jmp_condition_ex),
 	.ecall_condition_ex(ecall_condition_ex),
 	.csr_mtvec_ex(csr_mtvec_ex),
+	.csr_mepc(csr_mepc),
+	.csr_sepc(csr_sepc),
+    .g_interrupt(g_interrupt),
+    .g_interrupt_priv(g_interrupt_priv),
+    .g_current_priv(g_current_priv),
+    .csr_meie(csr_meie),
+    .csr_mtie(csr_mtie),
+    .csr_msie(csr_msie),
 	.jmp_purge_ma(jmp_purge_ma),
 	.stall(stall),
 	.rst_pipe(rst_pipe)
@@ -356,6 +386,14 @@ forwarding forwarding (
 	.stall_ld_ex(stall_ld_ex),
 	.stall(stall),
 	.rst_pipe(rst_pipe)
+	);
+
+interrupter interrupter (
+	.clk(clk),
+	.rst_n(rst_n),
+	.interrupt_0(interrupt_0),
+	.csr_meie(csr_meie),
+	.g_interrupt(g_interrupt)
 	);
 
 endmodule

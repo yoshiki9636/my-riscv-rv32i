@@ -20,6 +20,12 @@ module if_stage(
 	input [31:2] jmp_adr_ex,
 	input ecall_condition_ex,
 	input [31:2] csr_mtvec_ex,
+	input cmd_mret_ex,
+	input [31:2] csr_mepc,
+	input cmd_sret_ex,
+	input [31:2] csr_sepc,
+	input cmd_uret_ex,
+    input g_interrupt,
 	// from monitor
 	//output [11:2] inst_radr_if,
 	//input [31:0] inst_rdata_id,	
@@ -46,8 +52,11 @@ module if_stage(
 // PC
 
 reg [31:2] pc_if;
-wire jmp_cond = ecall_condition_ex | jmp_condition_ex;
-wire [31:2] jmp_adr = ecall_condition_ex ? csr_mtvec_ex : jmp_adr_ex;
+wire jmp_cond = ecall_condition_ex | jmp_condition_ex |
+                  cmd_mret_ex | cmd_sret_ex | cmd_uret_ex;
+wire [31:2] jmp_adr = (ecall_condition_ex | g_interrupt) ? csr_mtvec_ex :
+                      cmd_mret_ex ? csr_mepc :
+                      cmd_sret_ex ? csr_sepc : jmp_adr_ex;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)

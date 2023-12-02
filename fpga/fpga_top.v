@@ -16,6 +16,7 @@ module fpga_top(
 	input rst_n,
 	input rx,
 	output tx,
+	input interrupt_0,
 	output [2:0] rgb_led
 
 	);
@@ -60,7 +61,7 @@ wire locked;
     // Clock out ports
     .clk_out1           (clk),
     // Status and control signals
-    .resetn              (rst_n),
+    .reset              (~rst_n),
     .locked             (locked),
    // Clock in ports
     .clk_in1            (clkin)
@@ -99,7 +100,8 @@ cpu_top cpu_top (
 	.pc_data(pc_data),
 	.st_adr_io(st_adr_io),
 	.st_data_io(st_data_io),
-	.st_we_io(st_we_io)
+	.st_we_io(st_we_io),
+	.interrupt_0(interrupt_0)
 	);
 
 uart_top uart_top (
