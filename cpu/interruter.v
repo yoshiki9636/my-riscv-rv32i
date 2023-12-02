@@ -14,24 +14,27 @@ module interrupter(
 	// from external
 	input interrupt_0,
 	// from csr
-	input csr_meie.
-	output g_interrupt,
+	input csr_meie,
+	output g_interrupt
 
 	);
 
 // making 1 shot from level
 reg int_1lat;
 reg int_2lat;
+reg int_3lat;
 
 always @ (posedge clk or negedge rst_n) begin
-	if (~rst_n)
+	if (~rst_n) begin
 		int_1lat <= 1'b0;
 		int_2lat <= 1'b0;
 		int_3lat <= 1'b0;
-	else
+    end
+	else begin
 		int_1lat <= interrupt_0;
 		int_2lat <= int_1lat;
 		int_3lat <= int_2lat;
+	end
 end
 
 assign g_interrupt = csr_meie & int_2lat & ~int_3lat;

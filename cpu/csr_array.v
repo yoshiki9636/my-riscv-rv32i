@@ -23,8 +23,8 @@ module csr_array(
 	input g_interrupt,
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
-	output [31:2] csr_mepc,
-	output [31:2] csr_sepc,
+	output [31:2] csr_mepc_ex,
+	output [31:2] csr_sepc_ex,
 	input cmd_mret_ex,
 	input cmd_sret_ex,
 	input cmd_uret_ex,
@@ -48,9 +48,9 @@ module csr_array(
 `define CSR_MIE_ADR 12'h304
 `define CSR_MIP_ADR 12'h344
 
-`define M_MODE = 2'b11
-`define S_MODE = 2'b01
-`define U_MODE = 2'b00
+`define M_MODE 2'b11
+`define S_MODE 2'b01
+`define U_MODE 2'b00
 
 // MISA resigister value
 // MXL[31:30] : 01 : 32bit
@@ -76,12 +76,14 @@ wire adr_mip = (csr_ofs_ex == `CSR_MIP_ADR);
 wire adr_mie = (csr_ofs_ex == `CSR_MIE_ADR);
 
 // read data selector
-reg [31:0] csr_mstatus;
+wire [31:0] csr_mstatus;
+reg [31:0] csr_mstatush;
 wire [31:0] csr_misa = `CSR_MISA_DATA;
-reg [31:0] csr_mtvec;
+reg [31:2] csr_mtvec;
 reg [31:2] csr_mepc;
 reg [31:0] csr_mcause;
-wire [31:2] csr_sepc = 30'd0;
+//wire [31:2] csr_sepc_i = 30'd0;
+assign csr_sepc_ex = 30'd0;
 wire [31:0] csr_mip = 32'h0000_0888;
 reg [31:0] csr_mie;
 
@@ -89,7 +91,7 @@ wire [31:0] csr_rsel = adr_mstatus ? csr_mstatus :
                        adr_misa ? csr_misa :
                        adr_mtvec ? csr_mtvec :
                        adr_mepc ? csr_mepc :
-                       adr_sepc ? csr_sepc :
+                       adr_sepc ? csr_sepc_ex :
                        adr_mcause ? csr_mcause :
                        adr_mstatush ? csr_mstatush :
                        adr_mip ? csr_mip :
@@ -184,7 +186,7 @@ always @ ( posedge clk or negedge rst_n) begin
 		csr_sie <= sie_value;
 	end
 	else if (mstatus_wr) begin
-		csr_sie <= wdata_all[31;
+		csr_sie <= wdata_all[1];
 	end
 end
 
@@ -227,6 +229,8 @@ always @ ( posedge clk or negedge rst_n) begin
 	end
 end
 
+assign csr_mstatus = { 20'd0, csr_mpp, 2'b00, csr_spp, 1'b0, csr_mpie,
+                       1'b0, csr_spie, 1'b0, csr_rmie, 1'b0, csr_sie, 1'b0 } ;
 // MPRV, MXR : is not implemented becase no U-MODE now
 // SUM : is not implemented becase no S-MODE and virturalzation now
 // FS,VS,XS, SD is not implemented because none of extentions are implemented
@@ -239,10 +243,10 @@ end
 // mtvec
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
-		csr_mtvec <= 32'd0;
+		csr_mtvec <= 30'd0;
 	end
 	else if ((~stall)&(cmd_csr_ex)&(adr_mtvec)) begin
-		csr_mtvec <= wdata_all;
+		csr_mtvec <= wdata_all[31:2];
 	end
 end
 
@@ -261,6 +265,8 @@ always @ ( posedge clk or negedge rst_n) begin
 		csr_mepc <= wdata_all[31:2];
 	end
 end
+
+assign csr_mepc_ex = csr_mepc[31:2];
 
 // mcause
 // conditions
@@ -302,8 +308,6 @@ end
 // MEIP,MTIP,MSIP is set to 1 others are set to 0
 
 // mie register
-reg [31:0] csr_mie;
-
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
 		csr_mie <= 32'd0;

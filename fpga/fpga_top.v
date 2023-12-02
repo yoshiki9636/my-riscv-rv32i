@@ -8,8 +8,8 @@
  * @version		0.1
  */
 
-//`define TANG_PRIMER
-`define ARTY_A7
+`define TANG_PRIMER
+//`define ARTY_A7
 
 module fpga_top(
 	input clkin,

@@ -40,9 +40,9 @@ module cpu_top(
 
 	);
 
-`define M_MODE = 2'b11
-`define S_MODE = 2'b01
-`define U_MODE = 2'b00
+`define M_MODE 2'b11
+`define S_MODE 2'b01
+`define U_MODE 2'b00
 
 wire [11:0] csr_ofs_ex;
 wire [11:0] jalr_ofs_ex;
@@ -125,8 +125,8 @@ wire wbk_rd_reg_ex;
 wire wbk_rd_reg_ma;
 wire wbk_rd_reg_wb;
 
-wire [31:2] csr_mepc;
-wire [31:2] csr_sepc;
+wire [31:2] csr_mepc_ex;
+wire [31:2] csr_sepc_ex;
 // from somewhere...
 wire [1:0] g_interrupt_priv = `M_MODE; // temp
 wire [1:0] g_current_priv = `M_MODE; // temp
@@ -155,9 +155,9 @@ if_stage if_stage (
 	.jmp_adr_ex(jmp_adr_ex),
 	.ecall_condition_ex(ecall_condition_ex),
 	.cmd_mret_ex(cmd_mret_ex),
-	.csr_mepc(csr_mepc),
+	.csr_mepc_ex(csr_mepc_ex),
 	.cmd_sret_ex(cmd_sret_ex),
-	.csr_sepc(csr_sepc),
+	.csr_sepc_ex(csr_sepc_ex),
 	.cmd_uret_ex(cmd_uret_ex),
 	.csr_mtvec_ex(csr_mtvec_ex),
     .g_interrupt(g_interrupt),
@@ -303,8 +303,8 @@ ex_stage ex_stage (
 	.jmp_condition_ex(jmp_condition_ex),
 	.ecall_condition_ex(ecall_condition_ex),
 	.csr_mtvec_ex(csr_mtvec_ex),
-	.csr_mepc(csr_mepc),
-	.csr_sepc(csr_sepc),
+	.csr_mepc_ex(csr_mepc_ex),
+	.csr_sepc_ex(csr_sepc_ex),
     .g_interrupt(g_interrupt),
     .g_interrupt_priv(g_interrupt_priv),
     .g_current_priv(g_current_priv),
