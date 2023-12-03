@@ -6,6 +6,7 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
+ * @version     0.3 add external interrupt and mret
  */
 
 module cpu_top(
@@ -131,6 +132,7 @@ wire [31:2] csr_sepc_ex;
 wire [1:0] g_interrupt_priv = `M_MODE; // temp
 wire [1:0] g_current_priv = `M_MODE; // temp
 wire g_interrupt;
+wire post_jump_cmd_cond;
 wire csr_meie;
 wire csr_mtie;
 wire csr_msie;
@@ -161,6 +163,7 @@ if_stage if_stage (
 	.cmd_uret_ex(cmd_uret_ex),
 	.csr_mtvec_ex(csr_mtvec_ex),
     .g_interrupt(g_interrupt),
+    .post_jump_cmd_cond(post_jump_cmd_cond),
 	.i_ram_radr(i_ram_radr),
 	.i_ram_rdata(i_ram_rdata),
 	.i_ram_wadr(i_ram_wadr),
@@ -306,6 +309,7 @@ ex_stage ex_stage (
 	.csr_mepc_ex(csr_mepc_ex),
 	.csr_sepc_ex(csr_sepc_ex),
     .g_interrupt(g_interrupt),
+    .post_jump_cmd_cond(post_jump_cmd_cond),
     .g_interrupt_priv(g_interrupt_priv),
     .g_current_priv(g_current_priv),
     .csr_meie(csr_meie),

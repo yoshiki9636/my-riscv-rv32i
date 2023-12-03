@@ -6,6 +6,7 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
+ * @version     0.3 add external interrupt and mret
  */
 
 module ex_stage(
@@ -88,6 +89,7 @@ module ex_stage(
 	input g_interrupt,
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
+    input post_jump_cmd_cond,
     output csr_meie,
     output csr_mtie,
     output csr_msie,
@@ -221,6 +223,7 @@ csr_array csr_array (
 	.g_interrupt(g_interrupt),
 	.g_interrupt_priv(g_interrupt_priv),
 	.g_current_priv(g_current_priv),
+	.post_jump_cmd_cond(post_jump_cmd_cond),
 	.csr_mepc_ex(csr_mepc_ex),
 	.csr_sepc_ex(csr_sepc_ex),
     .cmd_mret_ex(cmd_mret_ex),

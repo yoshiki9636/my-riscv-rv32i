@@ -7,6 +7,7 @@
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
  * @version		0.2 add part of csr instructions
+ * @version     0.3 add external interrupt and mret
  */
 
 module id_stage(
@@ -224,9 +225,9 @@ endfunction
 wire [3:0] dc_op4 = op4_decoder( inst_op4 );
 
 wire dc_op4_00000 = dc_op4[0];
-wire dc_op4_00001 = dc_op4[0];
-wire dc_op4_00010 = dc_op4[0];
-wire dc_op4_00101 = dc_op4[0];
+wire dc_op4_00001 = dc_op4[1];
+wire dc_op4_00010 = dc_op4[2];
+wire dc_op4_00101 = dc_op4[3];
 
 // op5
 

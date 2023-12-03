@@ -6,6 +6,7 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
+ * @version     0.3 add external interrupt and mret
  */
 
 module csr_array(
@@ -21,6 +22,7 @@ module csr_array(
 	output [31:0] csr_rd_data,
 	output [31:2] csr_mtvec_ex,
 	input g_interrupt,
+	input post_jump_cmd_cond,
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
 	output [31:2] csr_mepc_ex,
@@ -254,12 +256,14 @@ assign csr_mtvec_ex = csr_mtvec[31:2];
 
 // mepc
 // capture PC when ecall occured
+wire [31:2] sel_pc_ex;
+
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
 		csr_mepc <= 30'd0;
 	end
 	else if (cmd_ecall_ex | m_interrupt) begin
-		csr_mepc <= pc_ex;
+		csr_mepc <= sel_pc_ex;
 	end
 	else if ((~stall)&(cmd_csr_ex)&(adr_mepc)) begin
 		csr_mepc <= wdata_all[31:2];
@@ -312,7 +316,7 @@ always @ ( posedge clk or negedge rst_n) begin
 	if (~rst_n) begin
 		csr_mie <= 32'd0;
 	end
-	else if ((~stall)&(cmd_csr_ex)&(adr_mtvec)) begin
+	else if ((~stall)&(cmd_csr_ex)&(adr_mie)) begin
 		csr_mie <= wdata_all;
 	end
 end
@@ -320,5 +324,19 @@ end
 assign csr_meie = csr_mie[11];
 assign csr_mtie = csr_mie[7];
 assign csr_msie = csr_mie[3];
+
+
+// pc control for mepc
+reg [31:2] post_pc_ex;
+
+always @ ( posedge clk or negedge rst_n) begin   
+	if (~rst_n) begin
+		post_pc_ex <= 30'd0;
+	end
+	else 
+		post_pc_ex <= pc_ex;
+end
+
+assign sel_pc_ex = post_jump_cmd_cond ? post_pc_ex : pc_ex;
 
 endmodule
