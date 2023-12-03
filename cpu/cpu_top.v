@@ -6,7 +6,6 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
- * @version     0.3 add external interrupt and mret
  */
 
 module cpu_top(
@@ -103,6 +102,7 @@ wire cmd_st_ex;
 wire cmd_st_ma;
 wire cmd_uret_ex;
 wire cmd_wfi_ex;
+wire illegal_ops_ex;
 wire hit_rs1_idex_ex;
 wire hit_rs1_idma_ex;
 wire hit_rs1_idwb_ex;
@@ -117,6 +117,10 @@ wire jmp_purge_ma;
 wire nohit_rs1_ex;
 wire nohit_rs2_ex;
 wire rst_pipe;
+wire rst_pipe_id;
+wire rst_pipe_ex;
+wire rst_pipe_ma;
+wire rst_pipe_wb;
 wire stall;
 wire stall_1shot;
 wire stall_dly;
@@ -145,7 +149,11 @@ cpu_status cpu_status (
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe),
+	.rst_pipe_id(rst_pipe_id),
+	.rst_pipe_ex(rst_pipe_ex),
+	.rst_pipe_ma(rst_pipe_ma),
+	.rst_pipe_wb(rst_pipe_wb)
 	);
 
 if_stage if_stage (
@@ -224,6 +232,7 @@ id_stage id_stage (
 	.cmd_sret_ex(cmd_sret_ex),
 	.cmd_mret_ex(cmd_mret_ex),
 	.cmd_wfi_ex(cmd_wfi_ex),
+	.illegal_ops_ex(illegal_ops_ex),
 	.rd_adr_ex(rd_adr_ex),
 	.wbk_rd_reg_ex(wbk_rd_reg_ex),
 	.jmp_purge_ma(jmp_purge_ma),
@@ -239,7 +248,7 @@ id_stage id_stage (
 	.stall_dly(stall_dly),
 	.stall_ld(stall_ld),
 	.stall_ld_ex(stall_ld_ex),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe_id)
 	);
 
 ex_stage ex_stage (
@@ -317,7 +326,7 @@ ex_stage ex_stage (
     .csr_msie(csr_msie),
 	.jmp_purge_ma(jmp_purge_ma),
 	.stall(stall),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe_ex)
 	);
 
 ma_stage ma_stage (
@@ -348,7 +357,7 @@ ma_stage ma_stage (
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe_ma)
 	);
 
 wb_stage wb_stage (
@@ -361,7 +370,7 @@ wb_stage wb_stage (
 	.wbk_data_wb(wbk_data_wb),
 	.wbk_data_wb2(wbk_data_wb2),
 	.stall(stall),
-	.rst_pipe(rst_pipe)
+	.rst_pipe(rst_pipe_wb)
 	);
 
 forwarding forwarding (

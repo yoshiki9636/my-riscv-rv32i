@@ -7,7 +7,6 @@
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
  * @version		0.2 add part of csr instructions
- * @version     0.3 add external interrupt and mret
  */
 
 module id_stage(
@@ -59,6 +58,7 @@ module id_stage(
     output reg cmd_wfi_ex,
 	output reg [4:0] rd_adr_ex,
 	output reg wbk_rd_reg_ex,
+    output reg illegal_ops_ex,
 	// from EX
 	input jmp_purge_ma,
 	// from WB
@@ -295,6 +295,18 @@ wire cmd_sret_id   = cmd_ec_id & dc_op3_00010 & dc_op4_00010;
 wire cmd_mret_id   = cmd_ec_id & dc_op3_00110 & dc_op4_00010;
 wire cmd_wfi_id    = cmd_ec_id & dc_op3_00010 & dc_op4_00101;
 
+// nop command
+wire cmd_nop = (inst_id == 32'h0000_0013);
+// all command except nop
+wire cmd_all_except_nop =
+	cmd_lui_id | cmd_auipc_id | cmd_ld_id | cmd_alui_id | cmd_alui_shamt_id
+	| cmd_alu_id | cmd_alu_add_id | cmd_alu_sub_id | cmd_st_id | cmd_jal_id
+	| cmd_jalr_id | cmd_br_id | cmd_fence_id | cmd_fencei_id | cmd_sfence_id
+	| cmd_csr_id | cmd_ec_id | cmd_ecall_id | cmd_ebreak_id | cmd_uret_id  
+	| cmd_sret_id | cmd_mret_id | cmd_wfi_id;
+
+wire illegal_ops_id = ~(cmd_nop | cmd_all_except_nop);
+
 // destination register number
 wire [4:0] rd_adr_id = inst_rd;
 
@@ -417,6 +429,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_sret_ex <= 1'b0;
         cmd_mret_ex <= 1'b0;
         cmd_wfi_ex <= 1'b0;
+		illegal_ops_ex <= 1'b0;
 		rd_adr_ex <= 5'd0;
 		wbk_rd_reg_ex <= 1'b0;
 		pc_ex <= 30'd0;
@@ -459,6 +472,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_sret_ex <= 1'b0;
         cmd_mret_ex <= 1'b0;
         cmd_wfi_ex <= 1'b0;
+		illegal_ops_ex <= 1'b0;
 		rd_adr_ex <= 5'd0;
 		wbk_rd_reg_ex <= 1'b0;
 		pc_ex <= 30'd0;
@@ -501,6 +515,7 @@ always @ (posedge clk or negedge rst_n) begin
         cmd_sret_ex <= cmd_sret_id & ~stall_ld;
         cmd_mret_ex <= cmd_mret_id & ~stall_ld;
         cmd_wfi_ex <= cmd_wfi_id & ~stall_ld;
+		illegal_ops_ex <= illegal_ops_id & ~stall_ld;
 		rd_adr_ex <= rd_adr_id;
 		wbk_rd_reg_ex <= wbk_rd_reg_id;
 		pc_ex <= pc_id;
