@@ -14,8 +14,8 @@ Xilinx Artix-7のDigilent Arty A7での設定と、MMCMの記述を追加しま�
   
 1.1 Version 0.31の制約  
 - 0.2と比較してinterruptピンを使った外部割込み（単体）、mretの実装を追加。
-- 0.3から illegal operations exceptionをついか
-　privilegeはM-modeのみ。
+- 0.3から illegal operations exceptionを追加。
+- privilegeはM-modeのみ。
 - ALU周り、Load/Store、Jump、csr系とecallを作成。  
 - fence系、ecall以外のecall系、exception未実装。  
 - メモリはinstructionとdataでセパレート。各々1KWordsの大きさ。  
