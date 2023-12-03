@@ -6,7 +6,7 @@ open (F2, ">test2.txt") or die "cannot open test2.txt";
 open (F3, ">test3.txt") or die "cannot open test3.txt";
 
 while (<>) {
-	if (/^ (..)(..)(..)(..)$/) {
+	if (/^(..)(..)(..)(..)$/) {
 		print F0 "$4\n";
 		print F1 "$3\n";
 		print F2 "$2\n";

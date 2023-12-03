@@ -102,6 +102,8 @@ while(<>) {
 		$pc += 4; }
 	elsif (/^\s*ecall/) {
 		$pc += 4; }
+	elsif (/^\s*mret/) {
+		$pc += 4; }
 }
 
 $ARGV[0] = $name;
@@ -484,6 +486,9 @@ while(<>) {
 	}
 	elsif (/^\s*ecall/) {
 		$code = 0x73;
+	}
+	elsif (/^\s*mret/) {
+		$code = 0x30200073;
 	}
 	else {
 		print "ERROR no format found : $_\n";
