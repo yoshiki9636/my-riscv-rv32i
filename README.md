@@ -12,11 +12,11 @@ Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのve
 Xilinx Artix-7のDigilent Arty A7での設定と、MMCMの記述を追加しました。MMCMは90MHzで動作確認しました。
 現在fpga_top.vはArty A7設定になっております。Tang Primerでの使用時はifdef設定の変更をお願いします。
   
-1. Version 0.2の制約  
-以下の制約があります。  
-  
+1.1 Version 0.3の制約  
+- 0.2と比較してinterruptピンを使った外部割込み（単体）、mretの実装を追加。
+　privilegeはM-modeのみ。
 - ALU周り、Load/Store、Jump、csr系とecallを作成。  
-- fence系、ecall以外のecall系、uret系などは未実装。割り込みも未実装。  
+- fence系、ecall以外のecall系、exception未実装。  
 - メモリはinstructionとdataでセパレート。各々1KWordsの大きさ。  
 - I/OはRGB LEDの3ピンのみ。  
   
