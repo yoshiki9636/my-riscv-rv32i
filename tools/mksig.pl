@@ -17,6 +17,9 @@ while(<>) {
 	if ((flg == 0)&&(/^module\s+(\S+)\s*\(/)) {
 		$flg = 1;
 	}
+	elsif (($flg > 0)&&(/^\s*(input|output)\s+signed\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
+		print "wire signed $2 $3; // $1\n";
+	}
 	elsif (($flg > 0)&&(/^\s*(input|output)\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
 		print "wire $2 $3; // $1\n";
 	}

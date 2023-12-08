@@ -19,6 +19,16 @@ while(<>) {
 		$flg = 1;
 		print "$1 $1 (\n";
 	}
+	elsif (($flg > 0)&&(/^\s*(input|output)\s+signed\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
+		if ($flg == 1) {
+			$flg = 2;
+			print "	";
+		}
+		else {
+			print ",\n	";
+		}
+		print ".$3($3)";
+	}
 	elsif (($flg > 0)&&(/^\s*(input|output)\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
 		if ($flg == 1) {
 			$flg = 2;
