@@ -17,7 +17,8 @@ csrrw x7, 0x304, x7 ; wirte to mtvec
 addi x2, x0, 10 ; loop max
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ; 
-lui x4, 0xc0000 ; LED address
+lui x4, 0xc000f ; LED address
+ori x4, x4, 0xe00 ;
 and x3, x0, x3 ; legal ops
 and x3, x0, x3 ; legal ops
 and x3, x0, x3 ; legal ops

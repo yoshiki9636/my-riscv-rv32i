@@ -6,7 +6,6 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
- * @version     0.3 add external interrupt and mret
  */
 
 module ex_stage(
@@ -55,6 +54,7 @@ module ex_stage(
     input cmd_sret_ex,
     input cmd_mret_ex,
     input cmd_wfi_ex,
+    input illegal_ops_ex,
 	input [4:0] rd_adr_ex,
 	input wbk_rd_reg_ex,
 	
@@ -90,6 +90,7 @@ module ex_stage(
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
     input post_jump_cmd_cond,
+	output g_exception,
     output csr_meie,
     output csr_mtie,
     output csr_msie,
@@ -224,6 +225,8 @@ csr_array csr_array (
 	.g_interrupt_priv(g_interrupt_priv),
 	.g_current_priv(g_current_priv),
 	.post_jump_cmd_cond(post_jump_cmd_cond),
+	.illegal_ops_ex(illegal_ops_ex),
+	.g_exception(g_exception),
 	.csr_mepc_ex(csr_mepc_ex),
 	.csr_sepc_ex(csr_sepc_ex),
     .cmd_mret_ex(cmd_mret_ex),
@@ -238,6 +241,14 @@ csr_array csr_array (
 	.stall(stall)
 	);
 
+// exception block
+
+exception exception (
+	.clk(clk),
+	.rst_n(rst_n),
+	.illegal_ops_ex(illegal_ops_ex),
+	.g_exception(g_exception)
+	);
 
 // Post-selector
 // ALU
@@ -306,12 +317,12 @@ assign jmp_condition_ex = ~jmp_purge_ma & (
 					      sbgu & (alu_code_ex == 3'b111) ));
 
 // ecall
-assign ecall_condition_ex = ~jmp_purge_ma & cmd_ecall_ex;
+assign ecall_condition_ex = ~jmp_purge_ma & (cmd_ecall_ex | illegal_ops_ex);
 
 // purge signal
 wire jmp_purge_ex = jmp_condition_ex | ecall_condition_ex;
 
-wire wbk_rd_reg_tmp = wbk_rd_reg_ex & ~jmp_purge_ma;
+wire wbk_rd_reg_tmp = wbk_rd_reg_ex & ~jmp_purge_ma & ~illegal_ops_ex;
 wire cmd_st_tmp = cmd_st_ex & ~jmp_purge_ma;
 
 // FF to MA

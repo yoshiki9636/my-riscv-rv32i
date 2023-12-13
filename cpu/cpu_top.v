@@ -32,9 +32,18 @@ module cpu_top(
 	input i_read_sel,
 	output [31:0] pc_data,
 
-	output [11:2] st_adr_io,
-	output [31:0] st_data_io,
-	output [3:0] st_we_io,
+	output dma_io_we,
+	output [15:2] dma_io_wadr,
+	output [15:0] dma_io_wdata,
+	output [15:2] dma_io_radr,
+	input [15:0] dma_io_rdata_in,
+
+    output ibus_ren,
+    output [15:0] ibus_radr,
+    input [15:0] ibus32_rdata,
+    output ibus_wen,
+    output [15:0] ibus_wadr,
+    output [15:0] ibus32_wdata,
 
 	input interrupt_0
 
@@ -103,6 +112,7 @@ wire cmd_st_ma;
 wire cmd_uret_ex;
 wire cmd_wfi_ex;
 wire illegal_ops_ex;
+wire g_exception;
 wire hit_rs1_idex_ex;
 wire hit_rs1_idma_ex;
 wire hit_rs1_idwb_ex;
@@ -140,6 +150,13 @@ wire post_jump_cmd_cond;
 wire csr_meie;
 wire csr_mtie;
 wire csr_msie;
+wire dma_we_ma;
+wire [15:2] dataram_wadr_ma;
+wire [15:0] dataram_wdata_ma;
+wire dma_re_ma;
+wire [15:2] dataram_radr_ma;
+wire [15:0] dataram_rdata_wb;
+wire [15:0] dma_io_rdata;
 
 cpu_status cpu_status (
 	.clk(clk),
@@ -172,6 +189,7 @@ if_stage if_stage (
 	.csr_mtvec_ex(csr_mtvec_ex),
     .g_interrupt(g_interrupt),
     .post_jump_cmd_cond(post_jump_cmd_cond),
+    .g_exception(g_exception),
 	.i_ram_radr(i_ram_radr),
 	.i_ram_rdata(i_ram_rdata),
 	.i_ram_wadr(i_ram_wadr),
@@ -292,6 +310,7 @@ ex_stage ex_stage (
 	.cmd_sret_ex(cmd_sret_ex),
 	.cmd_mret_ex(cmd_mret_ex),
 	.cmd_wfi_ex(cmd_wfi_ex),
+	.illegal_ops_ex(illegal_ops_ex),
 	.rd_adr_ex(rd_adr_ex),
 	.wbk_rd_reg_ex(wbk_rd_reg_ex),
 	.hit_rs1_idex_ex(hit_rs1_idex_ex),
@@ -321,6 +340,7 @@ ex_stage ex_stage (
     .post_jump_cmd_cond(post_jump_cmd_cond),
     .g_interrupt_priv(g_interrupt_priv),
     .g_current_priv(g_current_priv),
+    .g_exception(g_exception),
     .csr_meie(csr_meie),
     .csr_mtie(csr_mtie),
     .csr_msie(csr_msie),
@@ -351,13 +371,21 @@ ma_stage ma_stage (
 	.d_ram_wdata(d_ram_wdata),
 	.d_ram_wen(d_ram_wen),
 	.d_read_sel(d_read_sel),
-	.st_we_io(st_we_io),
-	.st_adr_io(st_adr_io),
-	.st_data_io(st_data_io),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_rdata(dma_io_rdata),
+	.dma_we_ma(dma_we_ma),
+	.dataram_wadr_ma(dataram_wadr_ma),
+	.dataram_wdata_ma(dataram_wdata_ma),
+	.dma_re_ma(dma_re_ma),
+	.dataram_radr_ma(dataram_radr_ma),
+	.dataram_rdata_wb(dataram_rdata_wb),
 	.stall(stall),
 	.stall_1shot(stall_1shot),
 	.stall_dly(stall_dly),
-	.rst_pipe(rst_pipe_ma)
+	.rst_pipe(rst_pipe)
 	);
 
 wb_stage wb_stage (
@@ -409,4 +437,29 @@ interrupter interrupter (
 	.g_interrupt(g_interrupt)
 	);
 
+dma dma (
+	.clk(clk),
+	.rst_n(rst_n),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_rdata_in(dma_io_rdata_in),
+	.dma_io_rdata(dma_io_rdata),
+	.dma_we_ma(dma_we_ma),
+	.dataram_wadr_ma(dataram_wadr_ma),
+	.dataram_wdata_ma(dataram_wdata_ma),
+	.dma_re_ma(dma_re_ma),
+	.dataram_radr_ma(dataram_radr_ma),
+	.dataram_rdata_wb(dataram_rdata_wb),
+	.ibus_ren(ibus_ren),
+	.ibus_radr(ibus_radr),
+	.ibus32_rdata(ibus32_rdata),
+	.ibus_wen(ibus_wen),
+	.ibus_wadr(ibus_wadr),
+	.ibus32_wdata(ibus32_wdata),
+	.rst_pipe(rst_pipe)
+	);
+
 endmodule
+

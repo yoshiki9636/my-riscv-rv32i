@@ -34,10 +34,19 @@ module ma_stage(
 	input [31:0] d_ram_wdata,
 	input d_ram_wen,
 	input d_read_sel,
-	// to IO
-	output [3:0] st_we_io,
-	output [11:2] st_adr_io,
-	output [31:0] st_data_io,
+	// from/to IO
+	output dma_io_we,
+	output [15:2] dma_io_wadr,
+	output [15:0] dma_io_wdata,
+    output [15:2] dma_io_radr,
+    input [15:0] dma_io_rdata,
+	// from/to dma memory access interface
+    input dma_we_ma,
+    input [15:2] dataram_wadr_ma,
+    input [15:0] dataram_wdata_ma,
+    input dma_re_ma,
+    input [15:2] dataram_radr_ma,
+    output [15:0] dataram_rdata_wb,
 
 	// stall
 	input stall,
@@ -108,35 +117,53 @@ wire [3:0] st_we = (ldst_code_ma == 3'b000) ? be_byte :
 				   (ldst_code_ma == 3'b010) ? { cmd_st_ma, cmd_st_ma, cmd_st_ma, cmd_st_ma } : 4'd0;
 
 wire [3:0] st_we_mem = st_we & { 4{ (rd_data_ma[31:30] != 2'b11) }};
-assign      st_we_io = st_we & { 4{ (rd_data_ma[31:30] == 2'b11) }};
-assign st_adr_io = rd_data_ma[11:2];
-assign st_data_io = st_wdata;
+assign dma_io_we = st_we[1] & st_we[0] & (rd_data_ma[31:30] == 2'b11);
+assign dma_io_wadr = rd_data_ma[15:2];
+assign dma_io_wdata = st_wdata[15:0];
+assign dma_io_radr = rd_data_ma[15:2];
 
 // load / next stage
 
 // data memory
 reg  [31:0] ld_data_roll;
-wire sel_data_rd_ma;
+//wire sel_data_rd_ma;
 wire [13:2] data_radr_ma;
+wire [31:0] data_rdata_wb_mem;
 wire [31:0] data_rdata_wb;
 wire [13:2] data_wadr_ma;
 wire [31:0] data_wdata_ma;
 wire [3:0] data_we_ma;
 
-assign data_radr_ma = d_read_sel ? d_ram_radr : rd_data_ma[13:2];
-assign data_wadr_ma = d_ram_wen ? d_ram_wadr : rd_data_ma[13:2];
-assign data_wdata_ma = d_ram_wen ? d_ram_wdata : st_wdata;
-assign data_we_ma = d_ram_wen ? 4'b1111 : st_we_mem;
-assign sel_data_rd_ma = cmd_ld_ma; 
+assign data_radr_ma = d_read_sel ? d_ram_radr :
+					  dma_re_ma ? dataram_radr_ma[13:2] : rd_data_ma[13:2];
+assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
+					  dma_we_ma ? dataram_wadr_ma[13:2] : rd_data_ma[13:2];
+assign data_wdata_ma = d_ram_wen ? d_ram_wdata :
+					   dma_we_ma ? { 16'd0, dataram_wdata_ma } : st_wdata;
+assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;
+//assign sel_data_rd_ma = cmd_ld_ma; 
+assign dataram_rdata_wb = data_rdata_wb[15:0];
 
 data_1r1w data_1r1w (
 	.clk(clk),
 	.ram_radr(data_radr_ma),
-	.ram_rdata(data_rdata_wb),
+	.ram_rdata(data_rdata_wb_mem),
 	.ram_wadr(data_wadr_ma),
 	.ram_wdata(data_wdata_ma),
 	.ram_wen(data_we_ma)
 	);
+
+wire dma_io_ren_ma = cmd_ld_ma & (rd_data_ma[31:30] == 2'b11);
+
+reg dma_io_ren_wb;
+always @ ( posedge clk or negedge rst_n) begin   
+	if (~rst_n)
+		dma_io_ren_wb <= 1'b0;
+	else
+		dma_io_ren_wb <= dma_io_ren_ma;
+end
+
+assign data_rdata_wb = dma_io_ren_wb ? { 16'd0, dma_io_rdata } : data_rdata_wb_mem;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)

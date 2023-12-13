@@ -6,7 +6,6 @@
  * @copylight	2021 Yoshiki Kurokawa
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
- * @version     0.3 add external interrupt and mret
  */
 
 module csr_array(
@@ -23,6 +22,8 @@ module csr_array(
 	output [31:2] csr_mtvec_ex,
 	input g_interrupt,
 	input post_jump_cmd_cond,
+	input illegal_ops_ex,
+	input g_exception,
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
 	output [31:2] csr_mepc_ex,
@@ -262,7 +263,7 @@ always @ ( posedge clk or negedge rst_n) begin
 	if (~rst_n) begin
 		csr_mepc <= 30'd0;
 	end
-	else if (cmd_ecall_ex | m_interrupt) begin
+	else if (cmd_ecall_ex | m_interrupt | g_exception) begin
 		csr_mepc <= sel_pc_ex;
 	end
 	else if ((~stall)&(cmd_csr_ex)&(adr_mepc)) begin
@@ -277,8 +278,9 @@ assign csr_mepc_ex = csr_mepc[31:2];
 wire interrupt_bit = g_interrupt ? 1'b1 : 1'b0;
 // just impliment Machine mode Ecall and inteeupt
 wire [30:0] mcause_code = g_interrupt ? 31'd11 :
+						  illegal_ops_ex ? 31'd2 :
                           cmd_ecall_ex ?  31'd3 : 31'd0;
-wire mcause_write = cmd_ecall_ex | g_interrupt;
+wire mcause_write = cmd_ecall_ex | g_interrupt | g_exception;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin

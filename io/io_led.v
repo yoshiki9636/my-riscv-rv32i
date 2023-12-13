@@ -11,10 +11,14 @@
 module io_led(
 	input clk,
 	input rst_n,
-	// to IO
-	input [3:0] st_we_io,
-	input [11:2] st_adr_io,
-	input [31:0] st_data_io,
+	// from/to IO bus
+
+    input dma_io_we,
+    input [15:2] dma_io_wadr,
+    input [15:0] dma_io_wdata,
+    input [15:2] dma_io_radr,
+    output [15:0] dma_io_rdata_in,
+    output [15:0] dma_io_rdata,
 	output [2:0] rgb_led
 
 	);
@@ -22,17 +26,20 @@ module io_led(
 reg [2:0] led_value;
 
 // decode :: adr 0x0 : LED values
+`define SYS_LED_IO 14'h3F80
 
-wire we_led_value = st_we_io[0] & (st_adr_io == 10'd0);
+wire we_led_value = dma_io_we & (dma_io_wadr == `SYS_LED_IO);
+wire re_led_value = (dma_io_radr == `SYS_LED_IO);
 
 
 always @ (posedge clk or negedge rst_n) begin
     if (~rst_n)
         led_value <= 3'd0 ;
 	else if ( we_led_value )
-		led_value <= st_data_io[2:0];
+		led_value <= dma_io_wdata[2:0];
 end
 
+assign dma_io_rdata = re_led_value ? { 13'd0, led_value } : dma_io_rdata_in;
 assign rgb_led = led_value;
 
 endmodule

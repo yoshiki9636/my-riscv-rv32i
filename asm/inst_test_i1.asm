@@ -12,7 +12,8 @@ nop
 nop
 ; clear LED to black
 addi x1, x0, 7 ; LED value
-lui x2, 0xc0000 ; LED address
+lui x2, 0xc000f ; LED address
+ori x2, x2, 0xe00 ;
 sb x1, 0x0(x2) ; set LED
 ; test lui
 :fail_test1

@@ -35,9 +35,18 @@ wire [31:0] i_ram_wdata;
 wire i_ram_wen;
 wire i_read_sel;
 
-wire [11:2] st_adr_io;
-wire [3:0] st_we_io;
-wire [31:0] st_data_io;
+wire dma_io_we;
+wire [15:2] dma_io_wadr;
+wire [15:0] dma_io_wdata;
+wire [15:2] dma_io_radr;
+wire [15:0] dma_io_rdata;
+wire [15:0] dma_io_rdata_in = 16'd0;
+wire ibus_ren;
+wire [15:0] ibus_radr;
+wire [15:0] ibus32_rdata = 16'd0;
+wire ibus_wen;
+wire [15:0] ibus_wadr;
+wire [15:0] ibus32_wdata;
 
 wire [31:2] start_adr;
 wire cpu_start;
@@ -98,9 +107,17 @@ cpu_top cpu_top (
 	.i_ram_wen(i_ram_wen),
 	.i_read_sel(i_read_sel),
 	.pc_data(pc_data),
-	.st_adr_io(st_adr_io),
-	.st_data_io(st_data_io),
-	.st_we_io(st_we_io),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_rdata_in(dma_io_rdata),
+	.ibus_ren(ibus_ren),
+	.ibus_radr(ibus_radr),
+	.ibus32_rdata(ibus32_rdata),
+	.ibus_wen(ibus_wen),
+	.ibus_wadr(ibus_wadr),
+	.ibus32_wdata(ibus32_wdata),
 	.interrupt_0(interrupt_0)
 	);
 
@@ -125,23 +142,19 @@ uart_top uart_top (
 	.cpu_start(cpu_start),
 	.quit_cmd(quit_cmd),
 	.start_adr(start_adr)
-	//.tx_fifo_full(tx_fifo_full),
-	//.tx_fifo_overrun(tx_fifo_overrun),
-	//.tx_fifo_underrun(tx_fifo_underrun)
 	
 	);
-//wire [2:0] rgb_led_dummy;
-//assign rgb_led = { tx_fifo_full, tx_fifo_overrun, tx_fifo_underrun };
-//assign rgb_led = { i_ram_wadr[4:2] };
 
 io_led io_led (
 	.clk(clk),
 	.rst_n(rst_n),
-	.st_we_io(st_we_io),
-	.st_adr_io(st_adr_io),
-	.st_data_io(st_data_io),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_rdata_in(dma_io_rdata_in),
+	.dma_io_rdata(dma_io_rdata),
 	.rgb_led(rgb_led)
-	//.rgb_led(rgb_led_dummy)
-	);
 
+	);
 endmodule

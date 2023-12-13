@@ -7,7 +7,6 @@
  * @license		https://opensource.org/licenses/MIT     MIT license
  * @version		0.1
  * @version		0.2 add ecall
- * @version		0.3 add external interrupt and mret
  */
 
 module if_stage(
@@ -28,6 +27,7 @@ module if_stage(
 	input cmd_uret_ex,
     input g_interrupt,
 	output post_jump_cmd_cond,
+	input g_exception,
 	// from monitor
 	//output [11:2] inst_radr_if,
 	//input [31:0] inst_rdata_id,	
@@ -54,12 +54,12 @@ module if_stage(
 // PC
 
 reg [31:2] pc_if;
-reg post_intr_ecall;
-wire intr_ecall = ecall_condition_ex | g_interrupt ;
+reg post_intr_ecall_exception;
+wire intr_ecall_exception = ecall_condition_ex | g_interrupt | g_exception ;
 wire jump_cmd_cond = jmp_condition_ex | cmd_mret_ex | cmd_sret_ex | cmd_uret_ex;
 
-wire jmp_cond = intr_ecall | ( jump_cmd_cond & ~post_intr_ecall);
-wire [31:2] jmp_adr = (ecall_condition_ex | g_interrupt) ? csr_mtvec_ex :
+wire jmp_cond = intr_ecall_exception | ( jump_cmd_cond & ~post_intr_ecall_exception);
+wire [31:2] jmp_adr = intr_ecall_exception ? csr_mtvec_ex :
                       cmd_mret_ex ? csr_mepc_ex :
                       cmd_sret_ex ? csr_sepc_ex : jmp_adr_ex;
 
@@ -120,9 +120,9 @@ assign inst_id = (stall_dly | stall_ld_ex) ? inst_roll : inst_rdata_id;
 // post interrupt / ecall timing
 always @ (posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        post_intr_ecall <= 1'b0;
+        post_intr_ecall_exception <= 1'b0;
 	else
-        post_intr_ecall <= intr_ecall;
+        post_intr_ecall_exception <= intr_ecall_exception;
 end
 
 // post cump command condition

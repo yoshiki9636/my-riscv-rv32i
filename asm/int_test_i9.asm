@@ -16,7 +16,8 @@ and x3, x0, x3 ; LED value
 and x4, x0, x4 ; 
 addi x5, x0, 7 ; LED mask value
 ori x8, x0, 7 ; check value
-lui x4, 0xc0000 ; LED address
+lui x4, 0xc000f ; LED address
+ori x4, x4, 0xe00 ;
 ori x7, x0, 0x005C ; interrupt tvector address
 csrrw x7, 0x305, x7 ; wirte to mtvec
 ori x7, x0, 0x800 ; set meip bit on mie 
