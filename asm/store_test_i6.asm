@@ -14,7 +14,7 @@ nop
 addi x1, x0, 7 ; LED value
 lui x2, 0xc000f ; LED address
 ori x2, x2, 0xe00 ;
-sb x1, 0x0(x2) ; set LED
+sh x1, 0x0(x2) ; set LED
 ; store pattern data for test
 lui x3, 0xa5a5a ;
 ori x3, x3, 0x5a5 ; test value (1)
@@ -167,7 +167,7 @@ and x1, x0, x1 ; loop counter
 addi x1, x1, 1
 blt x1, x2, label_waitloop
 addi x3, x3, 1
-sb x3, 0x0(x4)
+sh x3, 0x0(x4)
 jalr x0, x0, label_led
 nop
 nop

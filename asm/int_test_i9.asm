@@ -29,7 +29,7 @@ addi x1, x1, 1
 blt x1, x2, label_waitloop
 addi x3, x3, 1 
 and x6, x3, x5 ; masking
-sb x6, 0x0(x4)
+sh x6, 0x0(x4)
 jalr x0, x0, label_led
 nop
 nop
