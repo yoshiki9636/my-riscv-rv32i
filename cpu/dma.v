@@ -41,16 +41,16 @@ module dma(
 	);
 
 // address register
-`define SYS_DMA_START 12'hFF0
-`define SYS_DMA_IOSTR 12'hFF1
-`define SYS_DMA_MESTR 12'hFF2
-`define SYS_DMA_DCNTR 12'hFF3
+`define SYS_DMA_START 14'h3FF0
+`define SYS_DMA_IOSTR 14'h3FF1
+`define SYS_DMA_MESTR 14'h3FF2
+`define SYS_DMA_DCNTR 14'h3FF3
 
 // read decoder
 wire status_re_pre = (dma_io_radr == `SYS_DMA_START);
-wire io_start_adr_re_pre = (dma_io_radr == `SYS_DMA_START);
-wire mem_start_adr_re_pre = (dma_io_radr == `SYS_DMA_START);
-wire dcntr_re_pre = (dma_io_radr == `SYS_DMA_START);
+wire io_start_adr_re_pre = (dma_io_radr == `SYS_DMA_IOSTR);
+wire mem_start_adr_re_pre = (dma_io_radr == `SYS_DMA_MESTR);
+wire dcntr_re_pre = (dma_io_radr == `SYS_DMA_DCNTR);
 
 reg status_re;
 reg io_start_adr_re;
@@ -79,18 +79,18 @@ always @ ( posedge clk or negedge rst_n) begin
 	end
 end
 
-assign dma_io_rdata = status_re ? { 14'd0, read_run, write_run } :
+assign dma_io_rdata = status_re ? { 14'd0, write_run, read_run } :
 					  io_start_adr_re ? { 2'b00, io_start_adr, 2'b00 } :
 					  mem_start_adr_re ? { 2'b00, mem_start_adr, 2'b00 } :
 					  dcntr_re ? { 5'd0, dcntr } : dma_io_rdata_in;
 
 // write decoder
 // inhibit to write 2'b11 to start regster 
-wire read_start_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_START) & dma_io_wdata[1] & ~dma_io_wdata[0];
-wire write_start_we = dma_io_we & (dma_io_wadr == `SYS_DMA_START) & dma_io_wdata[0] & ~dma_io_wdata[1];
+wire read_start_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_START) & ~dma_io_wdata[1] &  dma_io_wdata[0];
+wire write_start_we = dma_io_we & (dma_io_wadr == `SYS_DMA_START) &  dma_io_wdata[1] & ~dma_io_wdata[0];
 wire io_start_adr_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_IOSTR);
 wire mem_start_adr_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_MESTR);
-wire dcntr_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_MESTR);
+wire dcntr_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_DCNTR);
 
 // registers
 
@@ -118,7 +118,7 @@ always @ ( posedge clk or negedge rst_n) begin
 	else if (rst_pipe)
         dcntr <= 13'd0;
 	else if (dcntr_we)
-		dcntr <= dcntr - 13'd1;
+		dcntr <= dma_io_wdata[13:0];
 end
 
 // mem -> io read counter
@@ -191,7 +191,7 @@ always @ ( posedge clk or negedge rst_n) begin
         btb_cntr <= dcntr;
 	else if (btb_cntr == 13'd0)
         btb_cntr <= 13'd0;
-	else if (read_run)
+	else if (read_run | write_run)
 		btb_cntr <= btb_cntr - 12'd1;
 end
 
@@ -257,10 +257,12 @@ always @ ( posedge clk or negedge rst_n) begin
 end
 assign dataram_wdata_ma = { 16'd0, ibus32_rdata };
 
-assign dma_re_ma = read_run;
-assign dma_we_ma = write_run_l2;
+//assign dma_re_ma = read_run;
+//assign dma_we_ma = write_run_l2;
+assign dma_we_ma = read_run;
+assign dma_re_ma = write_run_l2;
 
-assign dataram_wadr_ma = { 2'b00, mem_w_adr };
-assign dataram_radr_ma = { 2'b00, mem_r_adr };
+assign dataram_wadr_ma = { 2'b00, mem_r_adr };
+assign dataram_radr_ma = { 2'b00, mem_w_adr };
 
 endmodule

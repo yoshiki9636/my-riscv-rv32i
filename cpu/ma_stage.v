@@ -142,7 +142,7 @@ assign data_wdata_ma = d_ram_wen ? d_ram_wdata :
 					   dma_we_ma ? { 16'd0, dataram_wdata_ma } : st_wdata;
 assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;
 //assign sel_data_rd_ma = cmd_ld_ma; 
-assign dataram_rdata_wb = data_rdata_wb[15:0];
+assign dataram_rdata_wb = data_rdata_wb_mem[15:0];
 
 data_1r1w data_1r1w (
 	.clk(clk),
