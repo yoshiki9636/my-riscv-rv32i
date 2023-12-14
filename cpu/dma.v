@@ -124,6 +124,8 @@ end
 // mem -> io read counter
 reg read_run_l1;
 reg read_run_l2;
+reg read_run_l3;
+reg read_run_l4;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
@@ -140,14 +142,20 @@ always @ ( posedge clk or negedge rst_n) begin
 	if (~rst_n) begin
         read_run_l1 <= 1'b0;
         read_run_l2 <= 1'b0;
+        read_run_l3 <= 1'b0;
+        read_run_l4 <= 1'b0;
 	end
 	else if (rst_pipe) begin
         read_run_l1 <= 1'b0;
         read_run_l2 <= 1'b0;
+        read_run_l3 <= 1'b0;
+        read_run_l4 <= 1'b0;
 	end
 	else begin
         read_run_l1 <= read_run;
         read_run_l2 <= read_run_l1;
+        read_run_l3 <= read_run_l2;
+        read_run_l4 <= read_run_l3;
 	end
 end
 
@@ -169,6 +177,7 @@ end
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
         write_run_l1 <= 1'b0;
+        write_run_l2 <= 1'b0;
 	end
 	else if (rst_pipe) begin
         write_run_l1 <= 1'b0;
@@ -201,9 +210,9 @@ reg [11:0] mem_r_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
         mem_r_adr <= 11'd0;
-	else if (read_start_we)
+	else if (write_start_we)
         mem_r_adr <= mem_start_adr;
-	else if (read_run)
+	else if (write_run)
         mem_r_adr <= mem_r_adr + 12'd1;
 end
 
@@ -212,9 +221,9 @@ reg [11:0] io_w_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
         io_w_adr <= 11'd0;
-	else if (read_start_we)
+	else if (write_start_we)
         io_w_adr <= io_start_adr;
-	else if (read_run_l2)
+	else if (write_run_l2)
         io_w_adr <= io_w_adr + 12'd1;
 end
 
@@ -225,9 +234,9 @@ reg [11:0] io_r_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
         io_r_adr <= 11'd0;
-	else if (write_start_we)
+	else if (read_start_we)
         io_r_adr <= io_start_adr;
-	else if (write_run)
+	else if (read_run)
         io_r_adr <= io_r_adr + 12'd1;
 end
 
@@ -236,17 +245,17 @@ reg [11:0] mem_w_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
         mem_w_adr <= 11'd0;
-	else if (write_start_we)
+	else if (read_start_we)
         mem_w_adr <= mem_start_adr;
-	else if (write_run_l2)
+	else if (read_run_l2)
         mem_w_adr <= mem_w_adr + 12'd1;
 end
 
 
 // io bus signals
-assign ibus_wen = read_run_l2; // korede tadashii
+assign ibus_ren = read_run;
 assign ibus_wadr = { 4'h0, io_w_adr };
-assign ibus_ren = write_run | write_run_l1 | write_run_l2; // korede tadashii
+assign ibus_wen = write_run_l2;
 assign ibus_radr = { 4'h0, io_r_adr };
 
 always @ ( posedge clk or negedge rst_n) begin   
@@ -257,12 +266,10 @@ always @ ( posedge clk or negedge rst_n) begin
 end
 assign dataram_wdata_ma = { 16'd0, ibus32_rdata };
 
-//assign dma_re_ma = read_run;
-//assign dma_we_ma = write_run_l2;
-assign dma_we_ma = read_run;
-assign dma_re_ma = write_run_l2;
+assign dma_we_ma = read_run_l2;
+assign dma_re_ma = write_run;
 
-assign dataram_wadr_ma = { 2'b00, mem_r_adr };
-assign dataram_radr_ma = { 2'b00, mem_w_adr };
+assign dataram_wadr_ma = { 2'b00, mem_w_adr };
+assign dataram_radr_ma = { 2'b00, mem_r_adr };
 
 endmodule
