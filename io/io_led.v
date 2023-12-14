@@ -17,7 +17,7 @@ module io_led(
     input [15:2] dma_io_wadr,
     input [15:0] dma_io_wdata,
     input [15:2] dma_io_radr,
-    output [15:0] dma_io_rdata_in,
+    input [15:0] dma_io_rdata_in,
     output [15:0] dma_io_rdata,
 	output [2:0] rgb_led
 
