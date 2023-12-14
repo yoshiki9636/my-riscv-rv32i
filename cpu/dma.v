@@ -30,7 +30,6 @@ module dma(
     output ibus_ren,
     output [15:0] ibus_radr,
     input [15:0] ibus32_rdata,
-    //output [15:0] ibus32_rdata_out,
     output ibus_wen,
     output [15:0] ibus_wadr,
     output reg [15:0] ibus32_wdata,
@@ -264,7 +263,7 @@ always @ ( posedge clk or negedge rst_n) begin
 	else
         ibus32_wdata <= dataram_rdata_wb[15:0];
 end
-assign dataram_wdata_ma = { 16'd0, ibus32_rdata };
+assign dataram_wdata_ma = ibus32_rdata;
 
 assign dma_we_ma = read_run_l2;
 assign dma_re_ma = write_run;

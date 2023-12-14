@@ -1,0 +1,30 @@
+wire clk; // input
+wire rst_n; // input
+wire cpu_start; // input
+wire quit_cmd; // input
+wire [31:2] start_adr; // input
+wire [13:2] d_ram_radr; // input
+wire [13:2] d_ram_wadr; // input
+wire [31:0] d_ram_rdata; // output
+wire [31:0] d_ram_wdata; // input
+wire d_ram_wen; // input
+wire d_read_sel; // input
+wire [13:2] i_ram_radr; // input
+wire [13:2] i_ram_wadr; // input
+wire [31:0] i_ram_rdata; // output
+wire [31:0] i_ram_wdata; // input
+wire i_ram_wen; // input
+wire i_read_sel; // input
+wire [31:0] pc_data; // output
+wire dma_io_we; // output
+wire [15:2] dma_io_wadr; // output
+wire [15:0] dma_io_wdata; // output
+wire [15:2] dma_io_radr; // output
+wire [15:0] dma_io_rdata; // input
+wire ibus_ren; // output
+wire [15:0] ibus_radr; // output
+wire [15:0] ibus32_rdata; // input
+wire ibus_wen; // output
+wire [15:0] ibus_wadr; // output
+wire [15:0] ibus32_wdata; // output
+wire interrupt_0; // input
