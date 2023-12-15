@@ -37,7 +37,7 @@ always @ (posedge clk or negedge rst_n) begin
 		cpu_run_state <= 1'b1;
 end
 
-wire cpu_running = cpu_run_state; 
+//wire cpu_running = cpu_run_state; 
 
 // stall signal : currently controlled by outside
 

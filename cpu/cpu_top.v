@@ -39,10 +39,10 @@ module cpu_top(
 	input [15:0] dma_io_rdata_in,
 
     output ibus_ren,
-    output [15:0] ibus_radr,
+    output [15:2] ibus_radr,
     input [15:0] ibus32_rdata,
     output ibus_wen,
-    output [15:0] ibus_wadr,
+    output [15:2] ibus_wadr,
     output [15:0] ibus32_wdata,
 
 	input interrupt_0
