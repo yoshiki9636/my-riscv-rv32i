@@ -32,12 +32,12 @@ module uart_top(
 	output cpu_start,
 	output quit_cmd,
 	output [31:2] start_adr
-	//output wire tx_fifo_full,
-	//output wire tx_fifo_overrun,
-	//output wire tx_fifo_underrun,
-	//output wire rx_fifo_full,
-	//output wire rx_fifo_overrun,
-	//output wire rx_fifo_underrun,
+	//output tx_fifo_full,
+	//output tx_fifo_overrun,
+	//output tx_fifo_underrun,
+	//output rx_fifo_full,
+	//output rx_fifo_overrun,
+	//output rx_fifo_underrun,
 	//output [3:0] cmd_status,
 	//output [2:0] rx_fifo_rcntr,
 	//output [7:0] rout,
@@ -86,6 +86,7 @@ wire dump_running;
 wire trush_running;
 //wire data_en;
 wire crlf_in;
+wire [2:0] rx_fifo_rcntr;
 
 /*
 always @ (posedge clk or negedge rst_n) begin

@@ -32,11 +32,14 @@ module uart_if(
 // clk:90MHz, 9600bps
 //`define TERM 9375
 //`define HARF 4688
-`define TERM 8854
-`define HARF 4427
+//`define TERM 8854
+//`define HARF 4427
 // clk:80MHz, 9600bps
 //`define TERM 8333
 //`define HARF 4166
+// clk:75MHz, 9600bps
+`define TERM 7812
+`define HARF 3906
 
 // clk:50MHz, 9600bps
 //`define TERM 5208
@@ -104,7 +107,7 @@ wire edge_rx = ~rx2 & s0;
 wire sample_trg;
 reg [3:0] rx_state;
 
-wire [3:0] bit_cnt = {2'd0, s0} +  {2'd0, s1} +  {2'd0, s2} +  {2'd0, s3} +  {2'd0, s4}; 
+wire [2:0] bit_cnt = {2'd0, s0} +  {2'd0, s1} +  {2'd0, s2} +  {2'd0, s3} +  {2'd0, s4}; 
 
 wire bit_data = (bit_cnt >= 3'd3);
 
