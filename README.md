@@ -95,7 +95,8 @@ Here is a note on how to synthesize when using the Digilent Arty A7, using Xilin
   
 (5) Since the Arty A7 can use the USB connection as a UART, no special UART converter is needed. The rest is identical to the Tang Primer method (7).
   
------
+----------
+
 Design Memo ( English )
   
 1. Pipeline Design
@@ -342,8 +343,8 @@ load only
 	MA:                | r1 | J2 | x3 | x4 | N5 |  
 	WB:                     | r1 | J2 | x3 | x4 | N5 |  
   
-
-
+ 
+----------
 
 ### Japanese
   
