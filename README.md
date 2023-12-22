@@ -2,7 +2,351 @@
   
 My RISC-V RV32I CPU  
 RISC-V RV32I instruction set CPU for study  
-(Currently Japanese document only)
+
+### English
+(Japanese follows English)
+
+This RTL logics and operating environment of RISC-V RV32I instruction set is for aiming at woking on Seed FPGA board Tang Primer.
+Although it is for a Tang Primer, only clock PLL is used for IP and there is no special description, I think it will be easy to port to other FPGAs.
+
+※2021/9/5
+Added description of Xilinx Artix-7 configuration with Digilent Arty A7 and MMCM. MMCM was confirmed to work at ~~90MHz~~85MHz.
+Currently fpga_top.v is set to Arty A7. please change the ifdef setting when using Tang Primer.
+
+1.1 Limitations of Version 0.31
+- Added implementation of external interrupts (standalone) and mret using the interrupt pin compared to 0.2.
+- ver 0.3 : added illegal operations exception.
+- Privilege is M-mode only.
+- Create around ALU, Load/Store, Jump, csr system and ecall.
+- FENCE system, ECALL system other than ECALL, EXCEPTION are not implemented.
+- Memory is separated by INSTRUCTION and DATA. Each is 1K Words in size.
+- I/O is only 3-pin RGB LED.
+
+2. simple usage
+  
+First, please do a git clone.
+  
+2.1 RTL simulation
+We have confirmed the operation with Modelsim 10.5b, which is distributed for Intel FPGAs.
+Since only basic verilog descriptions are used, it would work with most simulators.
+  
+(1) Create the ssim/ directory and copy the contents of cpu/ fpga/ io/ mon/ sim/.
+  
+(2) Use riscv-asm1.pl in the asm/ directory and create a test instruction sequence test.txt. copy it to ssim/.
+　　Example:. /risc-vasm1.pl lchika.asm > test.txt
+  
+(3) Run the verilog simulator in ssim/.
+  
+2.3 Tang Primer Synthesis & run
+  
+Synthesis and writing to FPGA are performed using the IDE dedicated to Tang Primer. For details, please refer to the SiPEED page.
+https://tang.sipeed.com/en/
+  
+(1) Create ssyn/ directory and copy the contents of cpu/ fpga/ io/ mon/ syn/. Ifdef in fpga_top.v should enable TANG_PRIMER.
+  
+(2) Launch the IDE, create a project, designate ssyn as a directory, and specify all verilog files.
+  
+(3) We need to add a PLL, so select Tools->IP Generator, and from Create New IP, select PLL. The name is created as pll, input 24MHz, output 36MHz.
+  
+(3.1) Set the frequency setting in ssyn/uart_if.v to the 36 MHz setting.
+  
+(4) After that, composite and write as per usage.
+  
+(5) Use a USB - UART converter for serial communication with the FPGA. Connect Rx to B15, Tx to B16, or Gnd to G of the converter.
+  
+(6) Serial communication using Teraterm: In Teraterm's New Connection, select Serial and set COM to that of the transducer.
+  
+(7) Setup->Serial port, speed: 9600, data: 8bit, parity: none, stop bit: 1bit, flow control: none
+  
+(8) In Configuration->Terminal, set the line feed code to Receive: AUTO Transmit: CR. If you get an echo back when you tap the keyboard with this code, it is working.
+  
+(9) Write the program. press q to clear the status, then type i 00000000 to start a new line. Copy and paste the contents of test.txt created in the simulation. Finally, press q.
+  
+(10) To dump the written program, type p 00000000 00000100. The program you just wrote will be dumped.
+  
+(11) Execution will be in execution state at g 00000000. lchika.asm will cause RGB LEDs to change color. Other test programs will be the same lchika so that the test path can be understood after checking the items.
+  
+(12) Stopping execution is also stopped with q. Other commands are as follows.
+  
+	command format
+	g : goto PC address ( run program until quit ) : format: g <start addess>
+	q : quit from any command : format: q
+	w : write date to memory : format: w <start adderss> <data> ....<data> q
+	r : read data from memory : format: r <start address> <end adderss>
+	t : trashed memory data and 0 clear : format: t
+	s : program step execution : format: s
+	p : read instruction memory : format: p <start address> <end adderss>
+	i : write instruction memory : format: i <start adderss> <data> ....<data> q
+	j : print current PC value : format: j
+
+2.4 Arty A7 Synthesis & Run
+
+Here is a note on how to synthesize when using the Digilent Arty A7, using Xilinx Vivado. For more information, look for the Arty A7 design documentation.
+
+(1) Create ssyn/ directory and copy cpu/ fpga/ io/ mon/ Copy ssyn/riscv_io_pins.xdc Copy ifdef in fpga_top.v with ARTY_A7 enabled.
+
+(2) Start Vivado, create a project, specify RTL in ssyn, and specify riscv_io_pins.xdc as constraints.
+
+(3) MMCM needs to be added from the IP catalog. We have confirmed operation with a frequency of 100 MHz input and 90 MHz output.
+
+(3.1) Set the frequency setting in ssyn/uart_if.v to 90 MHz.
+  
+(4) Perform the following synthesis in the manner of Vivado and write to Arty A7.
+  
+(5) Since the Arty A7 can use the USB connection as a UART, no special UART converter is needed. The rest is identical to the Tang Primer method (7).
+  
+----------
+
+Design Memo ( English )
+  
+1. Pipeline Design
+  
+Pipeline Equivalent to 5-stage MIPS
+  
+| IF | ID | EX | MA | WB |
+	      ITLB DTLB
+  
+TLB's CAM can be created in FPGA...
+Initial work does not implement TLB. imem and dmem Harvard Arch.
+  
+IF imem lead issued, PC increment
+  
+Decode ID imem output, issue RF reads, generate direct values, etc.
+  
+EX Select RF output and forward value Execute operation
+  
+MA dmem write/read issued Forwarding
+  
+WB Pipeline and dmem read select RF write issue forwarding
+  
+  
+2. Instruction format classification
+  
+(1) fmt1  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	imm[32:12]                            | rd   | op1 | 11  
+  
+lui   : op1 01101  
+auipc : op1 00101  
+  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	imm[20|10:1|11~19:12]                 | rd   | op1 | 11  
+  
+jal  : op1 11011  
+  
+  
+(2) fmt2  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	imm[11:0]             | rs1   | op2   | rd   | op1 | 11  
+  
+	addi  : op1 00100  op2 000  
+	slti  : op1 00100  op2 010   
+	sltiu : op1 00100  op2 011   
+	xori  : op1 00100  op2 100   
+	ori   : op1 00100  op2 110   
+	andi  : op1 00100  op2 111   
+ 	
+	csrrw : op1 11100  op2 001   
+	csrrs : op1 11100  op2 010   
+	csrrc : op1 11100  op2 011   
+	csrrwi: op1 11100  op2 101  rs1 uimm  
+	csrrsi: op1 11100  op2 110  rs1 uimm  
+	csrrci: op1 11100  op2 111   
+  
+	lb    : op1 00000  op2 000   
+	lh    : op1 00000  op2 001   
+	lw    : op1 00000  op2 010   
+	lbu   : op1 00000  op2 100   
+	lhu   : op1 00000  op2 101   
+	
+	jalr  : op1 11001  op2 000   
+  
+  
+(3) fmt3  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	op3   | 0X    | shamt | rs1   | op2   | rd   | op1 | 11  
+  
+	slli : op1 00100  op2 001  op3 00000  
+	srli : op1 00100  op2 101  op3 00000  
+	srai : op1 00100  op2 101  op3 01000  
+  
+(4) fmt4  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	op3   | 00    | rs2   | rs1   | op2   | rd   | op1 | 11  
+  
+  
+	add  : op1 01100  op2 000  op3 00000  
+	sub  : op1 01100  op2 000  op3 01000  
+	sll  : op1 01100  op2 001  op3 00000  
+	slt  : op1 01100  op2 010  op3 00000  
+	sltu : op1 01100  op2 011  op3 00000  
+	xor  : op1 01100  op2 100  op3 00000  
+	srl  : op1 01100  op2 101  op3 00000  
+	sra  : op1 01100  op2 101  op3 01000  
+	or   : op1 01100  op2 110  op3 00000  
+	and  : op1 01100  op2 111  op3 00000  
+  
+(5) fmt5  
+  
+	31-28 | 27-24 | 23-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	0000  | pred  | succ  | 00000 | op2   | 00000| op1 | 11  
+  
+	fence   : op1 00011  op2 000   
+	fence.i : op1 00011  op2 001  pred 0000  succ 0000  
+  
+(6) fmt6  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	op3   | 00    | op4   | 00000 | op2   | 00000| op1 | 11  
+  
+	ecall  : op1 11100  op2 000  op3 00000  op4 00000  
+	ebreak : op1 11100  op2 000  op3 00000  op4 00001  
+	uret   : op1 11100  op2 000  op3 00000  op4 00010  
+	sret   : op1 11100  po2 000  op3 00010  op4 00010  
+	mret   : op1 11100  po2 000  op3 00110  op4 00010  
+	wfi    : op1 11100  po2 000  op3 00010  op4 00101  
+  
+(7) fmt7  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7 | 6-2 | 1-0  
+	op3   | op5   | rs2   | rs1   | op2   | rd   | op1 | 11  
+  
+	same as (4) fmt4  
+	sfence.vma : op1 11100  op2 000  op3 00010  op5 01  
+  
+(8) fmt8  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7  | 6-2 | 1-0  
+	of[11:5]      | rs2   | rs1   | op2   |of[4:0]| op1 | 11  
+  
+	sb  : op1 01000  op2 000   
+	sh  : op1 01000  op2 001   
+	sw  : op1 01000  op2 010   
+  
+(9) fmt9  
+  
+	31-27 | 26-25 | 24-20 | 19-15 | 14-12 | 11-7     | 6-2 | 1-0  
+	of[12|10:5]   | rs2   | rs1   | op2   |of[4:1|11]| op1 | 11  
+  
+	beq  : op1 11000  op2 000   
+	bne  : op1 11000  op2 001   
+	blt  : op1 11000  op2 100   
+	bge  : op1 11000  op2 101   
+	bltu : op1 11000  op2 110   
+	bgeu : op1 11000  op2 111   
+  
+  
+3.Pipeline stage Design  
+  
+3.1 EX Stage  
+ALU  
+add,sub  
+  
+	rs2_i = rs2 ^ { 32{ subflg }};  
+	intm[32:0] = { rs1, 1'b1 } + { rs2_i, subflg };  
+	result = intm[32:1];  
+  
+and  
+or  
+xor  
+l shift  
+r shift  
+  
+Branch  
+	eq : rs1 == rs2  
+	ne : rs1 != rs2 : ~eq  
+	lt : rs1 <  rs2 : rs1 - rs2 < 0  
+	ge : rs1 >= rs2 : ~lt  
+	ltu,geu same but other logic  
+  
+Address calculation for load/store  
+  
+	add rs1 or rs2 and offset  
+	add at ALU  
+  
+Address calculation for jump address,branch  
+  
+  
+3.2 MA Stage  
+  
+Data memory  
+address adding is finished
+load :  adr[1:0] & op1　: reading and going next stage
+store : adr[1:0] & op1 : making write enable and shifting data alinment  
+issued reading / writing memory
+
+  
+3.3 WB Stage  
+  
+load : adr[1:0] & op1 : shifting data alinment and going to write back  
+others : going to write back
+  
+  
+4. Pipeline forwarding
+  
+	| IF | ID | EX | MA | WB |  
+  
+Timing chart  
+  
+	IF: | r1 | r2 | r3 | r4 | r5 |  
+	ID:      | r1 | r2 | r3 | r4 | r5 |  
+	EX:           | r1 | r2 | r3 | r4 | r5 |  
+	MA:                | r1 | r2 | r3 | r4 | r5 |  
+	WB:                     | r1 | r2 | r3 | r4 | r5 |  
+  
+not load  
+  
+(1) EX -> EX  
+
+	IF: | r1 | r2 | r2 | r4 | r5 |  
+	ID:      | r1 | r2 | r2 | r4 | r5 |  
+	EX:           | r1 | r2*|*r2 | r4 | r5 |  
+	MA:                | r1 | r2 | r2 | r4 | r5 |  
+	WB:                     | r1 | r2 | r2 | r4 | r5 |  
+  
+(2) MA -> EX  
+
+	IF: | r1 | r2 | r3 | r2 | r5 |  
+	ID:      | r1 | r2 | r3 | r2 | r5 |  
+	EX:           | r1 | r2 | r3 |*r2 | r5 |  
+	MA:                | r1 | r2*| r3 | r2 | r5 |  
+	WB:                     | r1 | r2 | r3 | r2 | r5 |  
+  
+(3) WB -> EX  
+
+	IF: | r1 | r2 | r3 | r4 | r2 |  
+	ID:      | r1 | r2 | r3 | r4 | r2 |  
+	EX:           | r1 | r2 | r3 | r4 |*r2 |  
+	MA:                | r1 | r2 | r3 | r4 | r2 |  
+	WB:                     | r1 | r2*| r3 | r4 | r2 |  
+  
+load only  
+(4) WB -> MA  
+  
+	IF: | r1 | r2 | r2 | r4 | r5 |  
+	ID:      | r1 | r2 | r2 | r4 | r5 |  
+	EX:           | r1 | r2 | r2 | r4 | r5 |  
+	MA:                | r1 | r2*|*r2 | r4 | r5 |  
+	WB:                     | r1 | r2 | r2 | r4 | r5 |  
+  
+  
+(5)JMP/Branch : pipeline purge 
+  
+	IF: | r1 | J2 | r3 | r4 |*N5 |  
+	ID:      | r1 | J2 | r3 | x4 | N5 |  
+	EX:           | r1 | J2*| x3 | x4 | N5 |  
+	MA:                | r1 | J2 | x3 | x4 | N5 |  
+	WB:                     | r1 | J2 | x3 | x4 | N5 |  
+  
+ 
+----------
+
+### Japanese
   
 Seed FPGA board Tang Primer動作を目指したRISC-V RV32I命令セットのverilog RTL論理および動作環境です。  
 一応Tang Primerを謳っておりますが、clock PLLのみIP使用であり、特殊な記述もないため、  
