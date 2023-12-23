@@ -16,12 +16,19 @@ GetOptions('v' => \$v);
 
 $name = $ARGV[0];
 $pc = 0;
-%value = ();
+@value = ();
+%defvalue = ();
 
 while(<>) {
 	if (/^;/) { next; }
 	elsif (/^:(\w+)/) { $value{$1} = $pc; }
-	elsif (/^#immdefine (\w+) (\w+)/) { @def = ( @def, $1 );  $defvalue{$1} = int($2); }
+	elsif (/^#immdefine (\w+) (\w+)/) {
+		@def = ( @def, $1 );
+		$s = $1;
+		$w = $2;
+ 		if ($w =~ /^0x/) { $defvalue{$s} = hex($w); }
+		else { $defvalue{$s} = int($w); }
+	}
 	elsif (/^\s*nop/) {
 		$pc += 4; }
 	elsif (/^\s*lui\s+x(\d+),\s*(\w+)/) {
@@ -128,20 +135,27 @@ while(<>) {
 	}
 	elsif (/^\s*lui\s+x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
-		if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		#if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		$w = $2;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 12; } elsif ($w =~ /^0x/) { $imm = hex($w) << 12 ; } else { $imm = $w << 12; }
 		$op1 = 0x0d << 2;
 		$code = $imm + $rd + $op1 + 3;
 	}
 	elsif (/^\s*auipc\s+x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
-		if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		#if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		$w = $2;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 12; } elsif ($w =~ /^0x/) { $imm = hex($w) << 12 ; } else { $imm = $w << 12; }
 		$op1 = 0x05 << 2;
 		$code = $imm + $rd + $op1 + 3;
 	}
 	elsif (/^\s*addi\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
+		#print "$w $imm\n";
 		$op1 = 0x04 << 2;
 		$op2 = 0x0 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -149,7 +163,9 @@ while(<>) {
 	elsif (/^\s*slti\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x2 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -157,7 +173,9 @@ while(<>) {
 	elsif (/^\s*sltiu\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x3 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -165,7 +183,9 @@ while(<>) {
 	elsif (/^\s*xori\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x4 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -173,7 +193,9 @@ while(<>) {
 	elsif (/^\s*ori\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x6 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -181,7 +203,9 @@ while(<>) {
 	elsif (/^\s*andi\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x7 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -481,7 +505,9 @@ while(<>) {
 	}
 	elsif (/^\s*csrr([wsc])i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
 		$rd = $2 << 7;
-		if (defined($defvalue{$4})) { $imm = $defvalue{$4} << 15; } else { $imm = $4 << 15; }
+		#if (defined($defvalue{$4})) { $imm = $defvalue{$4} << 15; } else { $imm = $4 << 15; }
+		$w = $4;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 15; } elsif ($w =~ /^0x/) { $imm = hex($w) << 15 ; } else { $imm = $w << 15; }
 		$op1 = 0x73;
 		$op2 = ($1 eq "w") ? 5 :
 		       ($1 eq "s") ? 6 : 7;
