@@ -14,7 +14,7 @@ nop
 addi x1, x0, 7 ; LED value
 lui x2, 0xc000f ; LED address
 ori x2, x2, 0xe00 ;
-sh x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrwi
 :fail_test1
 csrrwi x3, 0x305, 0x15
@@ -31,7 +31,7 @@ bne x5, x8, fail_test1
 bne x7, x8, fail_test1
 ; next value
 addi x1, x0, 6 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrw
 :fail_test2
 ori x8, x0, 0x5a5
@@ -46,7 +46,7 @@ ori x8, x0, 0xa5a
 bne x5, x8, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrsi
 :fail_test3
 ori x8, x0, 0x0
@@ -60,7 +60,7 @@ ori x8, x0, 0x1f
 bne x6, x8, fail_test3
 ; next value
 addi x1, x0, 4 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrs
 :fail_test4
 ori x8, x0, 0x0
@@ -77,7 +77,7 @@ ori x8, x0, 0xfff
 bne x6, x8, fail_test4
 ; next value
 addi x1, x0, 3 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrci
 :fail_test5
 ori x8, x0, 0xfff
@@ -91,7 +91,7 @@ ori x8, x0, 0xfe0
 bne x6, x8, fail_test5
 ; next value
 addi x1, x0, 2 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test csrrc
 :fail_test6
 ori x8, x0, 0xfff
@@ -114,7 +114,7 @@ ori x8, x0, 0xfcf
 bne x4, x8, fail_test6
 ; next value
 addi x1, x0, 1 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test ecall
 :fail_test7
 lui x3, 0x00000 ;
@@ -129,7 +129,7 @@ jalr x0, x0, fail_test7
 jalr x0, x0, fail_test7
 ; 0x0180
 addi x1, x0, 0 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ori x6, x0, 0x16c
 ori x7, x0, 11
 nop
@@ -152,7 +152,7 @@ and x1, x0, x1 ; loop counter
 addi x1, x1, 1
 blt x1, x2, label_waitloop
 addi x3, x3, 1
-sh x3, 0x0(x4)
+sw x3, 0x0(x4)
 jalr x0, x0, label_led
 nop
 nop

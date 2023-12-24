@@ -14,7 +14,7 @@ nop
 addi x1, x0, 7 ; LED value
 lui x2, 0xc000f ; LED address
 ori x2, x2, 0xe00 ;
-sh x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; store pattern data for test
 lui x3, 0xa5a5a ;
 ori x3, x3, 0x5a5 ; test value (1)
@@ -37,7 +37,7 @@ ori x7, x7, 0x598
 bne x6, x7, fail_test1
 ; next value
 addi x1, x0, 6 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sb offset 1
 :fail_test2
 and x8, x8, x0
@@ -57,7 +57,7 @@ or x7, x7, x8
 bne x6, x7, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sb offset 2
 :fail_test3
 and x8, x8, x0
@@ -77,7 +77,7 @@ or x7, x7, x8
 bne x6, x7, fail_test3
 ; next value
 addi x1, x0, 4 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sb offset 3
 :fail_test4
 and x8, x8, x0
@@ -97,7 +97,7 @@ or x7, x7, x8
 bne x6, x7, fail_test4
 ; next value
 addi x1, x0, 3 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sh offset 0
 :fail_test5
 ori x8, x0, 0x4
@@ -117,7 +117,7 @@ or x7, x7, x8
 bne x6, x7, fail_test5
 ; next value
 addi x1, x0, 2 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sh offset 1
 :fail_test6
 ori x8, x0, 0x4
@@ -137,7 +137,7 @@ or x7, x7, x8
 bne x6, x7, fail_test6
 ; next value
 addi x1, x0, 1 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test sw 
 :fail_test7
 ori x8, x0, 0x8
@@ -151,7 +151,7 @@ ori x7, x7, 0x210
 bne x6, x7, fail_test7
 ; next value
 addi x1, x0, 0 ; LED value
-sb x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; test finished
 nop
 nop
@@ -167,7 +167,7 @@ and x1, x0, x1 ; loop counter
 addi x1, x1, 1
 blt x1, x2, label_waitloop
 addi x3, x3, 1
-sh x3, 0x0(x4)
+sw x3, 0x0(x4)
 jalr x0, x0, label_led
 nop
 nop

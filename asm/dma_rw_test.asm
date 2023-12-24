@@ -14,50 +14,50 @@ nop
 addi x1, x0, 7 ; LED value
 lui x2, 0xc000f ; LED address
 ori x2, x2, 0xe00 ;
-sh x1, 0x0(x2) ; set LED
+sw x1, 0x0(x2) ; set LED
 ; setup dma registers
 ; DMA IO start adr
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfc4 ;
 and x4, x0, x0 ; clear : start 0
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; DMA mem start adr
 xor x4, x4, x4 ; clear : start 0
 ori x4, x4, 0x100 ; memory start 100
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfc8 ;
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; DMA data counter
 xor x4, x4, x4 ; clear : start 0
 ori x4, x4, 0x20 ; DMA data counter
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfcc ;
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; DMA write start
 xor x4, x4, x4 ; clear : start 0
 ori x4, x4, 0x2 ; DMA data counter
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfc0 ;
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; wait finish
 :label_read_loop
-lh x5, 0x0(x3) ; set IO start adr offset 0x4
+lw x5, 0x0(x3) ; set IO start adr offset 0x4
 beq x5, x4, label_read_loop
 ; DMA mem start adr
 xor x4, x4, x4 ; clear : start 0
 ori x4, x4, 0x300 ; memory start 100
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfc8 ;
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; DMA read start
 xor x4, x4, x4 ; clear : start 0
 ori x4, x4, 0x1 ; DMA data counter
 lui x3, 0xc000f ; DMA base address
 ori x3, x3, 0xfc0 ;
-sh x4, 0x0(x3) ; set IO start adr offset 0x4
+sw x4, 0x0(x3) ; set IO start adr offset 0x4
 ; wait finish
 :label_write_loop
-lh x5, 0x0(x3) ; set IO start adr offset 0x4
+lw x5, 0x0(x3) ; set IO start adr offset 0x4
 beq x5, x4, label_write_loop
 ; test finished
 nop
@@ -76,7 +76,7 @@ and x1, x0, x1 ; loop counter
 addi x1, x1, 1
 blt x1, x2, label_waitloop
 addi x3, x3, 1
-sh x3, 0x0(x4)
+sw x3, 0x0(x4)
 jalr x0, x0, label_led
 nop
 nop
