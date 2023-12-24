@@ -34,15 +34,15 @@ module cpu_top(
 
 	output dma_io_we,
 	output [15:2] dma_io_wadr,
-	output [15:0] dma_io_wdata,
+	output [31:0] dma_io_wdata,
 	output [15:2] dma_io_radr,
-	input [15:0] dma_io_rdata_in,
+	input [31:0] dma_io_rdata_in,
 
     output ibus_ren,
-    output [15:2] ibus_radr,
+    output [19:2] ibus_radr,
     input [15:0] ibus32_rdata,
     output ibus_wen,
-    output [15:2] ibus_wadr,
+    output [19:2] ibus_wadr,
     output [15:0] ibus32_wdata,
 
 	input interrupt_0
@@ -156,7 +156,7 @@ wire [15:0] dataram_wdata_ma;
 wire dma_re_ma;
 wire [15:2] dataram_radr_ma;
 wire [15:0] dataram_rdata_wb;
-wire [15:0] dma_io_rdata;
+wire [31:0] dma_io_rdata;
 
 cpu_status cpu_status (
 	.clk(clk),

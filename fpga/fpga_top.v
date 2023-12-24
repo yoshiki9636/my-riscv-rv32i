@@ -37,15 +37,15 @@ wire i_read_sel;
 
 wire dma_io_we;
 wire [15:2] dma_io_wadr;
-wire [15:0] dma_io_wdata;
+wire [31:0] dma_io_wdata;
 wire [15:2] dma_io_radr;
-wire [15:0] dma_io_rdata;
-wire [15:0] dma_io_rdata_in = 16'd0;
+wire [31:0] dma_io_rdata;
+wire [31:0] dma_io_rdata_in = 32'd0;
 wire ibus_ren;
-wire [15:0] ibus_radr;
+wire [19:2] ibus_radr;
 wire [15:0] ibus32_rdata = 16'd0;
 wire ibus_wen;
-wire [15:0] ibus_wadr;
+wire [19:2] ibus_wadr;
 wire [15:0] ibus32_wdata;
 
 wire [31:2] start_adr;

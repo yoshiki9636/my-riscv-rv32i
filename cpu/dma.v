@@ -15,10 +15,10 @@ module dma(
 	// from io_rw block
 	input dma_io_we,
 	input [15:2] dma_io_wadr,
-	input [15:0] dma_io_wdata,
+	input [31:0] dma_io_wdata,
 	input [15:2] dma_io_radr,
-	input [15:0] dma_io_rdata_in,
-	output [15:0] dma_io_rdata,
+	input [31:0] dma_io_rdata_in,
+	output [31:0] dma_io_rdata,
 	// from/to MA
 	output dma_we_ma,
 	output [15:2] dataram_wadr_ma,
@@ -28,10 +28,10 @@ module dma(
 	input [15:0] dataram_rdata_wb,
 	// form/to io bus part
     output ibus_ren,
-    output [15:2] ibus_radr,
+    output [19:2] ibus_radr,
     input [15:0] ibus32_rdata,
     output ibus_wen,
-    output [15:2] ibus_wadr,
+    output [19:2] ibus_wadr,
     output reg [15:0] ibus32_wdata,
 
 	// reset pipe
@@ -58,7 +58,7 @@ reg dcntr_re;
 
 reg read_run;
 reg write_run;
-reg [15:2] io_start_adr;
+reg [19:2] io_start_adr;
 reg [13:2] mem_start_adr;
 reg [12:0] dcntr;
 reg [12:0] btb_cntr;
@@ -78,10 +78,10 @@ always @ ( posedge clk or negedge rst_n) begin
 	end
 end
 
-assign dma_io_rdata = status_re ? { 14'd0, write_run, read_run } :
-					  io_start_adr_re ? { 2'b00, io_start_adr, 2'b00 } :
-					  mem_start_adr_re ? { 2'b00, mem_start_adr, 2'b00 } :
-					  dcntr_re ? { 5'd0, dcntr } : dma_io_rdata_in;
+assign dma_io_rdata = status_re ? { 16'd0, 14'd0, write_run, read_run } :
+					  io_start_adr_re ? { 10'd0, io_start_adr, 2'b00 } :
+					  mem_start_adr_re ? { 16'd0, 2'b00, mem_start_adr, 2'b00 } :
+					  dcntr_re ? { 16'd0, 5'd0, dcntr } : dma_io_rdata_in;
 
 // write decoder
 // inhibit to write 2'b11 to start regster 
@@ -95,11 +95,11 @@ wire dcntr_we  = dma_io_we & (dma_io_wadr == `SYS_DMA_DCNTR);
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        io_start_adr <= 14'd0;
+        io_start_adr <= 18'd0;
 	else if (rst_pipe)
-        io_start_adr <= 14'd0;
+        io_start_adr <= 18'd0;
 	else if (io_start_adr_we)
-        io_start_adr <= dma_io_wdata[15:2];
+        io_start_adr <= dma_io_wdata[19:2];
 end	
 
 always @ ( posedge clk or negedge rst_n) begin   
@@ -216,27 +216,27 @@ always @ ( posedge clk or negedge rst_n) begin
 end
 
 // io destination address counter
-reg [15:2] io_w_adr;
+reg [19:2] io_w_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        io_w_adr <= 14'd0;
+        io_w_adr <= 18'd0;
 	else if (write_start_we)
         io_w_adr <= io_start_adr;
 	else if (write_run_l2)
-        io_w_adr <= io_w_adr + 14'd1;
+        io_w_adr <= io_w_adr + 18'd1;
 end
 
 
 // io -> mem
 // io source address counter
-reg [15:2] io_r_adr;
+reg [19:2] io_r_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        io_r_adr <= 14'd0;
+        io_r_adr <= 18'd0;
 	else if (read_start_we)
         io_r_adr <= io_start_adr;
 	else if (read_run)
-        io_r_adr <= io_r_adr + 14'd1;
+        io_r_adr <= io_r_adr + 18'd1;
 end
 
 // mem destination address counter

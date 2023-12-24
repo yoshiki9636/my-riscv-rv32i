@@ -37,9 +37,9 @@ module ma_stage(
 	// from/to IO
 	output dma_io_we,
 	output [15:2] dma_io_wadr,
-	output [15:0] dma_io_wdata,
+	output [31:0] dma_io_wdata,
     output [15:2] dma_io_radr,
-    input [15:0] dma_io_rdata,
+    input [31:0] dma_io_rdata,
 	// from/to dma memory access interface
     input dma_we_ma,
     input [15:2] dataram_wadr_ma,
@@ -117,9 +117,9 @@ wire [3:0] st_we = (ldst_code_ma == 3'b000) ? be_byte :
 				   (ldst_code_ma == 3'b010) ? { cmd_st_ma, cmd_st_ma, cmd_st_ma, cmd_st_ma } : 4'd0;
 
 wire [3:0] st_we_mem = st_we & { 4{ (rd_data_ma[31:30] != 2'b11) }};
-assign dma_io_we = st_we[1] & st_we[0] & (rd_data_ma[31:30] == 2'b11);
+assign dma_io_we = (&st_we) & (rd_data_ma[31:30] == 2'b11);
 assign dma_io_wadr = rd_data_ma[15:2];
-assign dma_io_wdata = st_wdata[15:0];
+assign dma_io_wdata = st_wdata;
 assign dma_io_radr = rd_data_ma[15:2];
 
 // load / next stage
@@ -163,7 +163,7 @@ always @ ( posedge clk or negedge rst_n) begin
 		dma_io_ren_wb <= dma_io_ren_ma;
 end
 
-assign data_rdata_wb = dma_io_ren_wb ? { 16'd0, dma_io_rdata } : data_rdata_wb_mem;
+assign data_rdata_wb = dma_io_ren_wb ? dma_io_rdata : data_rdata_wb_mem;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)

@@ -15,10 +15,10 @@ module io_led(
 
     input dma_io_we,
     input [15:2] dma_io_wadr,
-    input [15:0] dma_io_wdata,
+    input [31:0] dma_io_wdata,
     input [15:2] dma_io_radr,
-    input [15:0] dma_io_rdata_in,
-    output [15:0] dma_io_rdata,
+    input [31:0] dma_io_rdata_in,
+    output [31:0] dma_io_rdata,
 	output [2:0] rgb_led
 
 	);
@@ -39,7 +39,7 @@ always @ (posedge clk or negedge rst_n) begin
 		led_value <= dma_io_wdata[2:0];
 end
 
-assign dma_io_rdata = re_led_value ? { 13'd0, led_value } : dma_io_rdata_in;
+assign dma_io_rdata = re_led_value ? { 29'd0, led_value } : dma_io_rdata_in;
 assign rgb_led = led_value;
 
 endmodule
