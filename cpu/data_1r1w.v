@@ -8,22 +8,24 @@
  * @version		0.1
  */
 
-module data_1r1w(
+module data_1r1w
+	#(parameter DWIDTH = 12)
+	(
 	input clk,
-	input [11:0] ram_radr,
+	input [DWIDTH-1:0] ram_radr,
 	output [31:0] ram_rdata,
-	input [11:0] ram_wadr,
+	input [DWIDTH-1:0] ram_wadr,
 	input [31:0] ram_wdata,
 	input [3:0] ram_wen
 	);
 
 // 4x1024 1r1w RAM
 
-reg[7:0] ram0[0:4095];
-reg[7:0] ram1[0:4095];
-reg[7:0] ram2[0:4095];
-reg[7:0] ram3[0:4095];
-reg[11:0] radr;
+reg[7:0] ram0[0:(2**DWIDTH)-1];
+reg[7:0] ram1[0:(2**DWIDTH)-1];
+reg[7:0] ram2[0:(2**DWIDTH)-1];
+reg[7:0] ram3[0:(2**DWIDTH)-1];
+reg[DWIDTH-1:0] radr;
 
 always @ (posedge clk) begin
 	if (ram_wen[0])

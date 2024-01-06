@@ -8,7 +8,9 @@
  * @version		0.1
  */
 
-module ma_stage(
+module ma_stage
+	#(parameter DWIDTH = 12)
+	(
 	input clk,
 	input rst_n,
 	
@@ -28,9 +30,9 @@ module ma_stage(
 	output reg wbk_rd_reg_wb,
 	output [31:0] ld_data_wb,
 	// to Memory
-	input [13:2] d_ram_radr,
+	input [DWIDTH+1:2] d_ram_radr,
 	output [31:0] d_ram_rdata,
-	input [13:2] d_ram_wadr,
+	input [DWIDTH+1:2] d_ram_wadr,
 	input [31:0] d_ram_wdata,
 	input d_ram_wen,
 	input d_read_sel,
@@ -127,24 +129,24 @@ assign dma_io_radr = rd_data_ma[15:2];
 // data memory
 reg  [31:0] ld_data_roll;
 //wire sel_data_rd_ma;
-wire [13:2] data_radr_ma;
+wire [DWIDTH+1:2] data_radr_ma;
 wire [31:0] data_rdata_wb_mem;
 wire [31:0] data_rdata_wb;
-wire [13:2] data_wadr_ma;
+wire [DWIDTH+1:2] data_wadr_ma;
 wire [31:0] data_wdata_ma;
 wire [3:0] data_we_ma;
 
 assign data_radr_ma = d_read_sel ? d_ram_radr :
-					  dma_re_ma ? dataram_radr_ma[13:2] : rd_data_ma[13:2];
+					  dma_re_ma ? dataram_radr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
 assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
-					  dma_we_ma ? dataram_wadr_ma[13:2] : rd_data_ma[13:2];
+					  dma_we_ma ? dataram_wadr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
 assign data_wdata_ma = d_ram_wen ? d_ram_wdata :
 					   dma_we_ma ? { 16'd0, dataram_wdata_ma } : st_wdata;
 assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;
 //assign sel_data_rd_ma = cmd_ld_ma; 
 assign dataram_rdata_wb = data_rdata_wb_mem[15:0];
 
-data_1r1w data_1r1w (
+data_1r1w #(.DWIDTH(DWIDTH)) data_1r1w (
 	.clk(clk),
 	.ram_radr(data_radr_ma),
 	.ram_rdata(data_rdata_wb_mem),

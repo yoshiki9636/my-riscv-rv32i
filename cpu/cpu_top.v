@@ -8,7 +8,9 @@
  * @version		0.1
  */
 
-module cpu_top(
+module cpu_top
+	#(parameter DWIDTH = 12)
+	(
 
 	input clk,
 	input rst_n,
@@ -17,8 +19,8 @@ module cpu_top(
 	input quit_cmd,
 	input [31:2] start_adr,
 
-	input [13:2] d_ram_radr,
-	input [13:2] d_ram_wadr,
+	input [DWIDTH+1:2] d_ram_radr,
+	input [DWIDTH+1:2] d_ram_wadr,
 	output [31:0] d_ram_rdata,
 	input [31:0] d_ram_wdata,
 	input d_ram_wen,
@@ -349,7 +351,7 @@ ex_stage ex_stage (
 	.rst_pipe(rst_pipe_ex)
 	);
 
-ma_stage ma_stage (
+ma_stage #(.DWIDTH(DWIDTH)) ma_stage (
 	.clk(clk),
 	.rst_n(rst_n),
 	.cmd_ld_ma(cmd_ld_ma),
@@ -437,7 +439,7 @@ interrupter interrupter (
 	.g_interrupt(g_interrupt)
 	);
 
-dma dma (
+dma #(.DWIDTH(DWIDTH)) dma (
 	.clk(clk),
 	.rst_n(rst_n),
 	.dma_io_we(dma_io_we),

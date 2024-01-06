@@ -8,7 +8,9 @@
  * @version		0.1
  */
 
-module dma(
+module dma
+	#(parameter DWIDTH = 12)
+	(
 	input clk,
 	input rst_n,
 
@@ -59,9 +61,9 @@ reg dcntr_re;
 reg read_run;
 reg write_run;
 reg [19:2] io_start_adr;
-reg [13:2] mem_start_adr;
-reg [12:0] dcntr;
-reg [12:0] btb_cntr;
+reg [DWIDTH+1:2] mem_start_adr;
+reg [DWIDTH:0] dcntr;
+reg [DWIDTH:0] btb_cntr;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
@@ -80,8 +82,8 @@ end
 
 assign dma_io_rdata = status_re ? { 16'd0, 14'd0, write_run, read_run } :
 					  io_start_adr_re ? { 10'd0, io_start_adr, 2'b00 } :
-					  mem_start_adr_re ? { 16'd0, 2'b00, mem_start_adr, 2'b00 } :
-					  dcntr_re ? { 16'd0, 5'd0, dcntr } : dma_io_rdata_in;
+					  mem_start_adr_re ? { { 30-DWIDTH{1'b0}}, mem_start_adr, 2'b00 } :
+					  dcntr_re ? {  { 31-DWIDTH{1'b0}}, dcntr } : dma_io_rdata_in;
 
 // write decoder
 // inhibit to write 2'b11 to start regster 
@@ -104,20 +106,20 @@ end
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        mem_start_adr <= 12'd0;
+        mem_start_adr <= { DWIDTH{ 1'b0 }};
 	else if (rst_pipe)
-        mem_start_adr <= 12'd0;
+        mem_start_adr <= { DWIDTH{ 1'b0 }};
 	else if (mem_start_adr_we)
-        mem_start_adr <= dma_io_wdata[14:2];
+        mem_start_adr <= dma_io_wdata[DWIDTH+1:2];
 end
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        dcntr <= 13'd0;
+        dcntr <= { DWIDTH+1{ 1'b0 }};
 	else if (rst_pipe)
-        dcntr <= 13'd0;
+        dcntr <= { DWIDTH+1{ 1'b0 }};
 	else if (dcntr_we)
-		dcntr <= dma_io_wdata[13:0];
+		dcntr <= dma_io_wdata[DWIDTH:0];
 end
 
 // mem -> io read counter
@@ -133,7 +135,7 @@ always @ ( posedge clk or negedge rst_n) begin
         read_run <= 1'b0;
 	else if (read_start_we)
         read_run <= 1'b1;
-	else if (btb_cntr == 13'd0)
+	else if (btb_cntr == { DWIDTH+1{ 1'b0 }})
         read_run <= 1'b0;
 end
 
@@ -169,7 +171,7 @@ always @ ( posedge clk or negedge rst_n) begin
         write_run <= 1'b0;
 	else if (write_start_we)
         write_run <= 1'b1;
-	else if (btb_cntr == 13'd0)
+	else if (btb_cntr == { DWIDTH+1{ 1'b0 }})
         write_run <= 1'b0;
 end
 
@@ -192,27 +194,27 @@ end
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        btb_cntr <= 13'd0;
+        btb_cntr <= { DWIDTH+1{ 1'b0 }};
 	else if (rst_pipe)
-        btb_cntr <= 13'd0;
+        btb_cntr <= { DWIDTH+1{ 1'b0 }};
 	else if (read_start_we | write_start_we)
         btb_cntr <= dcntr;
-	else if (btb_cntr == 13'd0)
-        btb_cntr <= 13'd0;
+	else if (btb_cntr == { DWIDTH+1{ 1'b0 }})
+        btb_cntr <= { DWIDTH+1{ 1'b0 }};
 	else if (read_run | write_run)
-		btb_cntr <= btb_cntr - 12'd1;
+		btb_cntr <= btb_cntr - { {DWIDTH{ 1'b0 }}, 1'b1};
 end
 
 // mem -> io
 // mem destination address counter
-reg [11:0] mem_r_adr;
+reg [DWIDTH-1:0] mem_r_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        mem_r_adr <= 11'd0;
+        mem_r_adr <= { DWIDTH{ 1'b0 }};
 	else if (write_start_we)
         mem_r_adr <= mem_start_adr;
 	else if (write_run)
-        mem_r_adr <= mem_r_adr + 12'd1;
+        mem_r_adr <= mem_r_adr + { {DWIDTH-1{ 1'b0 }}, 1'b1};
 end
 
 // io destination address counter
@@ -240,14 +242,14 @@ always @ ( posedge clk or negedge rst_n) begin
 end
 
 // mem destination address counter
-reg [11:0] mem_w_adr;
+reg [DWIDTH-1:0] mem_w_adr;
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        mem_w_adr <= 11'd0;
+        mem_w_adr <= { DWIDTH{ 1'b0 }};
 	else if (read_start_we)
         mem_w_adr <= mem_start_adr;
 	else if (read_run_l2)
-        mem_w_adr <= mem_w_adr + 12'd1;
+        mem_w_adr <= mem_w_adr + { {DWIDTH-1{ 1'b0 }}, 1'b1};
 end
 
 
@@ -268,7 +270,7 @@ assign dataram_wdata_ma = ibus32_rdata;
 assign dma_we_ma = read_run_l2;
 assign dma_re_ma = write_run;
 
-assign dataram_wadr_ma = { 2'b00, mem_w_adr };
-assign dataram_radr_ma = { 2'b00, mem_r_adr };
+assign dataram_wadr_ma = { 2'd0, mem_w_adr };
+assign dataram_radr_ma = { 2'd0, mem_r_adr };
 
 endmodule
