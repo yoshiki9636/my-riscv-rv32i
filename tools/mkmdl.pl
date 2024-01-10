@@ -15,11 +15,11 @@ $flg = 0;
 while(<>) {
 	s/reg//g;
 	s/wire//g;
-	if ((flg == 0)&&(/^module\s+(\S+)\s*\(/)) {
+	if ((flg == 0)&&(/^module\s+(\S+)\s*/)) {
 		$flg = 1;
 		print "$1 $1 (\n";
 	}
-	elsif (($flg > 0)&&(/^\s*(input|output)\s+signed\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
+	elsif (($flg > 0)&&(/^\s*(input|output|inout)\s+signed\s+(\[[\w-+]+:[\w-+]+\])\s+(\w+)\s*/)) {
 		if ($flg == 1) {
 			$flg = 2;
 			print "	";
@@ -29,7 +29,7 @@ while(<>) {
 		}
 		print ".$3($3)";
 	}
-	elsif (($flg > 0)&&(/^\s*(input|output)\s+(\[\d+:\d+\])\s+(\w+)\s*/)) {
+	elsif (($flg > 0)&&(/^\s*(input|output|inout)\s+(\[[\w-+]+:[\w-+]+\])\s+(\w+)\s*/)) {
 		if ($flg == 1) {
 			$flg = 2;
 			print "	";
@@ -39,7 +39,7 @@ while(<>) {
 		}
 		print ".$3($3)";
 	}
-	elsif (($flg > 0)&&(/^\s*(input|output)\s+(\w+)\s*/)) {
+	elsif (($flg > 0)&&(/^\s*(input|output|inout)\s+(\w+)\s*/)) {
 		if ($flg == 1) {
 			$flg = 2;
 			print "	";
