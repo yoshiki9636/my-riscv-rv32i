@@ -92,8 +92,8 @@ reg [31:0] csr_mie;
 
 wire [31:0] csr_rsel = adr_mstatus ? csr_mstatus :
                        adr_misa ? csr_misa :
-                       adr_mtvec ? csr_mtvec :
-                       adr_mepc ? csr_mepc :
+                       adr_mtvec ? { csr_mtvec, 2'b00 } :
+                       adr_mepc ? { csr_mepc, 2'b00 } :
                        adr_sepc ? csr_sepc_ex :
                        adr_mcause ? csr_mcause :
                        adr_mstatush ? csr_mstatush :
@@ -232,7 +232,7 @@ always @ ( posedge clk or negedge rst_n) begin
 	end
 end
 
-assign csr_mstatus = { 20'd0, csr_mpp, 2'b00, csr_spp, 1'b0, csr_mpie,
+assign csr_mstatus = { 18'd0, csr_mpp, 2'b00, csr_spp, 1'b0, csr_mpie,
                        1'b0, csr_spie, 1'b0, csr_rmie, 1'b0, csr_sie, 1'b0 } ;
 // MPRV, MXR : is not implemented becase no U-MODE now
 // SUM : is not implemented becase no S-MODE and virturalzation now
