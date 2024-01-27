@@ -17,7 +17,10 @@ module fpga_top(
 	input rx,
 	output tx,
 	input interrupt_0,
-	output [2:0] rgb_led
+	output [2:0] rgb_led,
+	output [2:0] rgb_led1,
+	output [2:0] rgb_led2,
+	output [2:0] rgb_led3
 
 	);
 
@@ -154,7 +157,10 @@ io_led io_led (
 	.dma_io_radr(dma_io_radr),
 	.dma_io_rdata_in(dma_io_rdata_in),
 	.dma_io_rdata(dma_io_rdata),
-	.rgb_led(rgb_led)
+	.rgb_led(rgb_led),
+	.rgb_led1(rgb_led1),
+	.rgb_led2(rgb_led2),
+	.rgb_led3(rgb_led3)
 
 	);
 endmodule

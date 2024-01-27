@@ -16,6 +16,9 @@ wire rx = 1'b0;
 wire tx;
 reg interrupt_0;
 wire [2:0] rgb_led;
+wire [2:0] rgb_led1;
+wire [2:0] rgb_led2;
+wire [2:0] rgb_led3;
 
 fpga_top fpga_top (
         .clkin(clkin),
@@ -23,7 +26,10 @@ fpga_top fpga_top (
 		.rx(rx),
         .tx(tx),
 		.interrupt_0(interrupt_0),
-        .rgb_led(rgb_led)
+        .rgb_led(rgb_led).
+        .rgb_led1(rgb_led1).
+        .rgb_led2(rgb_led2).
+        .rgb_led3(rgb_led3)
 	);
 
 initial $readmemh("./test.txt", fpga_top.cpu_top.if_stage.inst_1r1w.ram);
