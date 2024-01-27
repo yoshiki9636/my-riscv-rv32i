@@ -12,8 +12,8 @@ nop
 nop
 ; clear LED to black
 addi x1, x0, 7 ; LED value
-lui x2, 0xc000f ; LED address
-ori x2, x2, 0xe00 ;
+lui x2, 0xc0010 ; LED address
+addi x2, x2, 0xe00 ;
 sw x1, 0x0(x2) ; set LED
 ; test csrrwi
 :fail_test1
@@ -144,8 +144,8 @@ lui x2, 01000 ; loop max
 ;ori x2, x0, 10 ; small loop for sim
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ;
-lui x4, 0xc000f ; LED address
-ori x4, x4, 0xe00 ;
+lui x4, 0xc0010 ; LED address
+addi x4, x4, 0xe00 ;
 :label_led
 and x1, x0, x1 ; loop counter
 :label_waitloop

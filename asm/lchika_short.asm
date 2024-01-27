@@ -14,8 +14,8 @@ and x2, x0, x2 ;
 addi x2, x2, 5 
 and x3, x0, x3 ; LED value
 and x4, x0, x4 ; 
-lui x4, 0xc000f ; LED address 0xc000fe00
-ori x4, x4, 0xe00 ; 
+lui x4, 0xc0010 ; LED address 0xc000fe00
+addi x4, x4, 0xe00 ; 
 :label_led
 and x1, x0, x1 ; loop counter
 :label_waitloop
