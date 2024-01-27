@@ -26,9 +26,9 @@ fpga_top fpga_top (
 		.rx(rx),
         .tx(tx),
 		.interrupt_0(interrupt_0),
-        .rgb_led(rgb_led).
-        .rgb_led1(rgb_led1).
-        .rgb_led2(rgb_led2).
+        .rgb_led(rgb_led),
+        .rgb_led1(rgb_led1),
+        .rgb_led2(rgb_led2),
         .rgb_led3(rgb_led3)
 	);
 
