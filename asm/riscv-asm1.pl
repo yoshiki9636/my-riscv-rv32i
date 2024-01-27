@@ -500,19 +500,21 @@ while(<>) {
 		$op2 = ($1 eq "w") ? 1 :
 		       ($1 eq "s") ? 2 : 3;
 		$op2 = $op2 << 12;
-		$ofs = $3 << 20;
+		$w = $3;
+		if (defined($defvalue{$w})) { $ofs = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $ofs = hex($w) << 20 ; } else { $ofs = $w << 20; }
 		$code = $rs1 + $rd + $op1 + $op2 + $ofs;
 	}
 	elsif (/^\s*csrr([wsc])i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
 		$rd = $2 << 7;
-		#if (defined($defvalue{$4})) { $imm = $defvalue{$4} << 15; } else { $imm = $4 << 15; }
+		$w2 = $3;
+		$w3 = $1;
 		$w = $4;
 		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 15; } elsif ($w =~ /^0x/) { $imm = hex($w) << 15 ; } else { $imm = $w << 15; }
 		$op1 = 0x73;
-		$op2 = ($1 eq "w") ? 5 :
-		       ($1 eq "s") ? 6 : 7;
+		$op2 = ($w3 eq "w") ? 5 :
+		       ($w3 eq "s") ? 6 : 7;
 		$op2 = $op2 << 12;
-		$ofs = $3 << 20;
+		if (defined($defvalue{$w2})) { $ofs = $defvalue{$w2} << 20; } elsif ($w2 =~ /0x/) { $ofs = hex($w2) << 20 ; } else { $ofs = $w2 << 20; }
 		$code = $rd + $imm + $op1 + $op2 + $ofs;
 	}
 	elsif (/^\s*ecall/) {
