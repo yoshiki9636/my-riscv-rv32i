@@ -305,7 +305,7 @@ wire cmd_all_except_nop =
 	| cmd_csr_id | cmd_ec_id | cmd_ecall_id | cmd_ebreak_id | cmd_uret_id  
 	| cmd_sret_id | cmd_mret_id | cmd_wfi_id;
 
-wire illegal_ops_id = ~(cmd_nop | cmd_all_except_nop);
+wire illegal_ops_id = ~(cmd_nop | cmd_all_except_nop) & ~jmp_purge_ma;
 
 // destination register number
 wire [4:0] rd_adr_id = inst_rd;
