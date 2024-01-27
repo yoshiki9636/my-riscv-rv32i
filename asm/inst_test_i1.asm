@@ -28,7 +28,7 @@ sw x1, 0x0(x2) ; set LED
 :fail_test2
 auipc x5, 0x12345 ; test value
 lui x6, 0x12345 ; check value
-addi x6, x6, 44
+addi x6, x6, 0x30
 bne x5, x6, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value

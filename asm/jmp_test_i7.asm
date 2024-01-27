@@ -26,7 +26,10 @@ jal x4, fail_test1
 jal x3, ok2_test1
 jal x4, fail_test1
 :ok2_test1
-ori x5, x0, 40
+; next value
+addi x1, x0, 5 ; LED value
+sw x1, 0x0(x2) ; set LED
+ori x5, x0, 0x2c
 bne x3, x5, fail_test1
 ; next value
 addi x1, x0, 6 ; LED value
@@ -41,7 +44,7 @@ jal x4, fail_test2
 jalr x3, x3, zero
 jal x4, fail_test2
 :ok2_test2
-ori x5, x0, 0x44
+ori x5, x0, 0x50
 bne x3, x5, fail_test2
 ; next value
 addi x1, x0, 5 ; LED value
