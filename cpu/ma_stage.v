@@ -9,7 +9,7 @@
  */
 
 module ma_stage
-	#(parameter DWIDTH = 12)
+	#(parameter DWIDTH = 11)
 	(
 	input clk,
 	input rst_n,
@@ -29,6 +29,13 @@ module ma_stage
 	output reg [31:0] rd_data_wb,
 	output reg wbk_rd_reg_wb,
 	output [31:0] ld_data_wb,
+	// to LSU
+	input [DWIDTH-3:0] ram_radr_all,
+	output [127:0] ram_rdata_all,
+	input ram_ren_all,
+	input [DWIDTH-3:0] ram_wadr_all,
+	input [127:0] ram_wdata_all,
+	input ram_wen_all,
 	// to Memory
 	input [DWIDTH+1:2] d_ram_radr,
 	output [31:0] d_ram_rdata,
@@ -146,14 +153,25 @@ assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;
 //assign sel_data_rd_ma = cmd_ld_ma; 
 assign dataram_rdata_wb = data_rdata_wb_mem[15:0];
 
-data_1r1w #(.DWIDTH(DWIDTH)) data_1r1w (
+data_ram #(.DWIDTH(DWIDTH)) data_ram (
 	.clk(clk),
-	.ram_radr(data_radr_ma),
+	.rst_n(rst_n),
+	.ram_radr_part(data_radr_ma),
 	.ram_rdata(data_rdata_wb_mem),
-	.ram_wadr(data_wadr_ma),
+	.ram_wadr_part(data_wadr_ma),
 	.ram_wdata(data_wdata_ma),
-	.ram_wen(data_we_ma)
+	.ram_wen(data_we_ma),
+
+	.ram_radr_all(ram_radr_all),
+	.ram_rdata_all(ram_rdata_all),
+	.ram_ren_all(ram_ren_all),
+	.ram_wadr_all(ram_wadr_all),
+	.ram_wdata_all(ram_wdata_all),
+	.ram_wen_all(ram_wen_all)
 	);
+
+
+
 
 wire dma_io_ren_ma = cmd_ld_ma & (rd_data_ma[31:30] == 2'b11);
 

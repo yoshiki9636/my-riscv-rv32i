@@ -9,23 +9,23 @@
  */
 
 module data_1r1w
-	#(parameter DWIDTH = 12)
+	#(parameter DRWIDTH = 9)
 	(
 	input clk,
-	input [DWIDTH-1:0] ram_radr,
+	input [DRWIDTH-1:0] ram_radr,
 	output [31:0] ram_rdata,
-	input [DWIDTH-1:0] ram_wadr,
+	input [DRWIDTH-1:0] ram_wadr,
 	input [31:0] ram_wdata,
 	input [3:0] ram_wen
 	);
 
 // 4x1024 1r1w RAM
 
-reg[7:0] ram0[0:(2**DWIDTH)-1];
-reg[7:0] ram1[0:(2**DWIDTH)-1];
-reg[7:0] ram2[0:(2**DWIDTH)-1];
-reg[7:0] ram3[0:(2**DWIDTH)-1];
-reg[DWIDTH-1:0] radr;
+reg[7:0] ram0[0:(2**DRWIDTH)-1];
+reg[7:0] ram1[0:(2**DRWIDTH)-1];
+reg[7:0] ram2[0:(2**DRWIDTH)-1];
+reg[7:0] ram3[0:(2**DRWIDTH)-1];
+reg[DRWIDTH-1:0] radr;
 
 always @ (posedge clk) begin
 	if (ram_wen[0])

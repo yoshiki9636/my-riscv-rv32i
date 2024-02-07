@@ -9,7 +9,7 @@
  */
 
 module cpu_top
-	#(parameter DWIDTH = 12)
+	#(parameter DWIDTH = 11)
 	(
 
 	input clk,
@@ -159,6 +159,14 @@ wire dma_re_ma;
 wire [15:2] dataram_radr_ma;
 wire [15:0] dataram_rdata_wb;
 wire [31:0] dma_io_rdata;
+
+// LSU
+wire [DWIDTH-3:0] ram_radr_all = { (DWIDTH-2){ 1'b0 }};
+wire [127:0] ram_rdata_all;
+wire ram_ren_all = 1'b0;
+wire [DWIDTH-3:0] ram_wadr_all = { (DWIDTH-2){ 1'b0 }};
+wire [127:0] ram_wdata_all = 128'd0;
+wire ram_wen_all = 1'b0;
 
 cpu_status cpu_status (
 	.clk(clk),
@@ -367,6 +375,12 @@ ma_stage #(.DWIDTH(DWIDTH)) ma_stage (
 	.rd_data_wb(rd_data_wb),
 	.wbk_rd_reg_wb(wbk_rd_reg_wb),
 	.ld_data_wb(ld_data_wb),
+	.ram_radr_all(ram_radr_all),
+	.ram_rdata_all(ram_rdata_all),
+	.ram_ren_all(ram_ren_all),
+	.ram_wadr_all(ram_wadr_all),
+	.ram_wdata_all(ram_wdata_all),
+	.ram_wen_all(ram_wen_all),
 	.d_ram_radr(d_ram_radr),
 	.d_ram_rdata(d_ram_rdata),
 	.d_ram_wadr(d_ram_wadr),

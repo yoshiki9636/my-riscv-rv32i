@@ -9,13 +9,13 @@
  */
 
 module uart_logics
-	#(parameter DWIDTH = 12)
+	#(parameter DWIDTH = 11)
 	(
 	input clk,
 	input rst_n,
 	output [13:2] i_ram_radr,
 	input [31:0] i_ram_rdata,
-	output [13:2] i_ram_wadr,
+	output [DWIDTH+1:2] i_ram_wadr,
 	output [31:0] i_ram_wdata,
 	output i_ram_wen,
 	output i_read_sel,
@@ -103,7 +103,7 @@ always @ (posedge clk or negedge rst_n) begin
 		cmd_wadr_cntr <= cmd_wadr_cntr + 30'd1;
 end
 
-assign i_ram_wadr = trush_running ? trush_adr[13:2] : cmd_wadr_cntr[13:2];
+assign i_ram_wadr = trush_running ? trush_adr[DWIDTH+1:2] : cmd_wadr_cntr[DWIDTH+1:2];
 assign i_ram_wdata = trush_running ? 32'd0 : uart_data;
 assign i_ram_wen = inst_data_en | trush_running;
 assign d_ram_wadr =  trush_running ? trush_adr : cmd_wadr_cntr[DWIDTH+1:2];

@@ -9,7 +9,7 @@
  */
 
 module uart_top
-	#(parameter DWIDTH = 12)
+	#(parameter DWIDTH = 11)
 	(
 
 	input clk,
