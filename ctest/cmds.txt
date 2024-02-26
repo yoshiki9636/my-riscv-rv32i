@@ -1,6 +1,6 @@
- riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -c -o cblnk.o cblnk.c
- riscv64-unknown-elf-as -march=rv32i -mabi=ilp32 -o start.o start.s
- riscv64-unknown-elf-ld -b elf32-littleriscv start.o cblnk.o -T link.ld -o cblnk
- riscv64-unknown-elf-objdump -b elf32-littleriscv -D cblnk > cblnk.elf.dump
- riscv64-unknown-elf-objcopy -O binary cblnk cblnk.bin
+ riscv32-unknown-linux-gnu-gcc -march=rv32i -mabi=ilp32 -c -o cblnk.o cblnk.c
+ riscv32-unknown-linux-gnu-as -march=rv32i -mabi=ilp32 -o start.o start.s
+ riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o cblnk.o -T link.ld -o cblnk
+ riscv32-unknown-linux-gnu-objdump -b elf32-littleriscv -D cblnk > cblnk.elf.dump
+ riscv32-unknown-linux-gnu-objcopy -O binary cblnk cblnk.bin
  od -An -tx4 -w4 -v cblnk.bin > cblnk.hex

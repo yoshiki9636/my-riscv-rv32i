@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main() {
-    unsigned int* led = (unsigned int*)0xc0000000;
+    unsigned int* led = (unsigned int*)0xc000fe00;
     unsigned int val;
     unsigned int timer,timer2;
     val = 0;
