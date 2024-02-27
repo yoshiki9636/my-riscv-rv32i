@@ -38,6 +38,10 @@ wire [31:0] ram_rdata0;
 wire [31:0] ram_rdata1;
 wire [31:0] ram_rdata2;
 wire [31:0] ram_rdata3;
+wire [31:0] ram_wdata0 = ram_wen_all ? ram_wdata_all[31:0] : ram_wdata;
+wire [31:0] ram_wdata1 = ram_wen_all ? ram_wdata_all[63:32] : ram_wdata;
+wire [31:0] ram_wdata2 = ram_wen_all ? ram_wdata_all[95:64] : ram_wdata;
+wire [31:0] ram_wdata3 = ram_wen_all ? ram_wdata_all[127:96] : ram_wdata;
 
 reg [1:0] ram_rd_sel;
 always @ (posedge clk or negedge rst_n) begin
@@ -58,7 +62,7 @@ data_1r1w #(.DRWIDTH(DWIDTH-2)) ram0 (
 	.ram_radr(ram_radr),
 	.ram_rdata(ram_rdata0),
 	.ram_wadr(ram_wadr),
-	.ram_wdata(ram_wdata),
+	.ram_wdata(ram_wdata0),
 	.ram_wen(ram_wen0)
 	);
 
@@ -67,7 +71,7 @@ data_1r1w #(.DRWIDTH(DWIDTH-2)) ram1 (
 	.ram_radr(ram_radr),
 	.ram_rdata(ram_rdata1),
 	.ram_wadr(ram_wadr),
-	.ram_wdata(ram_wdata),
+	.ram_wdata(ram_wdata1),
 	.ram_wen(ram_wen1)
 	);
 
@@ -76,7 +80,7 @@ data_1r1w #(.DRWIDTH(DWIDTH-2)) ram2 (
 	.ram_radr(ram_radr),
 	.ram_rdata(ram_rdata2),
 	.ram_wadr(ram_wadr),
-	.ram_wdata(ram_wdata),
+	.ram_wdata(ram_wdata2),
 	.ram_wen(ram_wen2)
 	);
 
@@ -85,7 +89,7 @@ data_1r1w #(.DRWIDTH(DWIDTH-2)) ram3 (
 	.ram_radr(ram_radr),
 	.ram_rdata(ram_rdata3),
 	.ram_wadr(ram_wadr),
-	.ram_wdata(ram_wdata),
+	.ram_wdata(ram_wdata3),
 	.ram_wen(ram_wen3)
 	);
 
