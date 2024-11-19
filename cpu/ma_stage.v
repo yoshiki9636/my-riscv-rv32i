@@ -143,10 +143,21 @@ wire [DWIDTH+1:2] data_wadr_ma;
 wire [31:0] data_wdata_ma;
 wire [3:0] data_we_ma;
 
+generate
+if (DWIDTH < 15) begin
 assign data_radr_ma = d_read_sel ? d_ram_radr :
 					  dma_re_ma ? dataram_radr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
 assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
 					  dma_we_ma ? dataram_wadr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
+end
+else if (DWIDTH >= 15) begin
+assign data_radr_ma = d_read_sel ? d_ram_radr :
+					  dma_re_ma ? { { (DWIDTH-14){ 1'b0 }}, dataram_radr_ma[15:2] } : rd_data_ma[DWIDTH+1:2];
+assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
+					  dma_we_ma ? { { (DWIDTH-14){ 1'b0 }}, dataram_wadr_ma[15:2] } : rd_data_ma[DWIDTH+1:2];
+end
+endgenerate
+
 assign data_wdata_ma = d_ram_wen ? d_ram_wdata :
 					   dma_we_ma ? { 16'd0, dataram_wdata_ma } : st_wdata;
 assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;

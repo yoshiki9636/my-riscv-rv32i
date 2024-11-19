@@ -8,10 +8,12 @@
  * @version		0.1
  */
 
-`define TANG_PRIMER
-//`define ARTY_A7
+//`define TANG_PRIMER
+`define ARTY_A7
 
-module fpga_top(
+module fpga_top
+	#(parameter DWIDTH = 15)
+	(
 	input clkin,
 	input rst_n,
 	input rx,
@@ -24,8 +26,8 @@ module fpga_top(
 
 	);
 
-wire [13:2] d_ram_radr;
-wire [13:2] d_ram_wadr;
+wire [DWIDTH+1:2] d_ram_radr;
+wire [DWIDTH+1:2] d_ram_wadr;
 wire [31:0] d_ram_rdata;
 wire [31:0] d_ram_wdata;
 wire d_ram_wen;
@@ -91,7 +93,7 @@ pll pll (
 	);
 `endif
 
-cpu_top cpu_top (
+cpu_top #(.DWIDTH(DWIDTH)) cpu_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.cpu_start(cpu_start),
@@ -124,7 +126,7 @@ cpu_top cpu_top (
 	.interrupt_0(interrupt_0)
 	);
 
-uart_top uart_top (
+uart_top #(.DWIDTH(DWIDTH)) uart_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.rx(rx),
