@@ -1,6 +1,21 @@
+.text
+	.align 4
+.globl _start
+
+
 _start:
-	lui sp,0x4
+        nop ;
+        nop ;
+        nop ;
+        nop ;
+        nop ;
+	lui sp,0x10
         j main
+        nop ;
+        nop ;
+        nop ;
+        nop ;
+        nop ;
         nop ;
         nop ;
         nop ;
