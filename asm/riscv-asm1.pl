@@ -396,6 +396,7 @@ while(<>) {
 	}
 	elsif (/^\s*jal\s+x(\d+),\s*(\w+)/) {
         if (defined($value{$2})) { $ofs = $value{$2} - $pc; }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$rd = $1 << 7;
 		$ofs1 = (($ofs >> 20) & 0x1) << 31;
@@ -407,6 +408,7 @@ while(<>) {
 	}
 	elsif (/^\s*jalr\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
         if (defined($value{$3})) { $ofs = $value{$3};  }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$ofs = ($ofs & 0xfff) << 20;
 		$rd = $1 << 7;
@@ -419,6 +421,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
         if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -432,6 +435,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -445,6 +449,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -458,6 +463,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -471,6 +477,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -484,6 +491,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
