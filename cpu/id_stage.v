@@ -18,7 +18,7 @@ module id_stage(
 	// to EX stage
 	output [31:0] rs1_data_ex,
 	output [31:0] rs2_data_ex,
-	output reg [31:2] pc_ex,
+	output [31:2] pc_ex,
 
     // control signals
     output reg cmd_lui_ex,
@@ -76,6 +76,7 @@ module id_stage(
 	input stall_dly,
 	input stall_ld,
 	input stall_ld_ex,
+	input stall_ld_ex_dly,
 	input rst_pipe
 
 	);
@@ -388,6 +389,25 @@ end
 assign rs1_data_ex = (stall_dly | stall_ld_ex) ? rs1_data_roll : rs1_data_st;
 assign rs2_data_ex = (stall_dly | stall_ld_ex) ? rs2_data_roll : rs2_data_st;
 
+// pc_ex stops when stall_ld_ex
+
+reg [31:2] pc_ex_pre;
+reg [31:2] pc_ex_roll;
+
+always @ (posedge clk or negedge rst_n) begin   
+	if (~rst_n) begin
+        pc_ex_roll <= 30'd0;
+	end
+	else if (rst_pipe) begin
+        pc_ex_roll <= 30'd0;
+	end
+	else if ( stall_ld_ex) begin
+        pc_ex_roll <= pc_ex_pre;
+	end
+end
+
+assign pc_ex = stall_ld_ex_dly ? pc_ex_roll : pc_ex_pre;
+
 // FF to EX stage
 
 always @ (posedge clk or negedge rst_n) begin   
@@ -432,7 +452,7 @@ always @ (posedge clk or negedge rst_n) begin
 		illegal_ops_ex <= 1'b0;
 		rd_adr_ex <= 5'd0;
 		wbk_rd_reg_ex <= 1'b0;
-		pc_ex <= 30'd0;
+		pc_ex_pre <= 30'd0;
      end
 	else if (rst_pipe) begin
         cmd_lui_ex <= 1'b0;
@@ -475,7 +495,7 @@ always @ (posedge clk or negedge rst_n) begin
 		illegal_ops_ex <= 1'b0;
 		rd_adr_ex <= 5'd0;
 		wbk_rd_reg_ex <= 1'b0;
-		pc_ex <= 30'd0;
+		pc_ex_pre <= 30'd0;
      end
      else if (~stall) begin
         cmd_lui_ex <= cmd_lui_id & ~stall_ld;
@@ -518,7 +538,7 @@ always @ (posedge clk or negedge rst_n) begin
 		illegal_ops_ex <= illegal_ops_id & ~stall_ld;
 		rd_adr_ex <= rd_adr_id;
 		wbk_rd_reg_ex <= wbk_rd_reg_id;
-		pc_ex <= pc_id;
+		pc_ex_pre <= pc_id;
     end
 end
 
