@@ -9,7 +9,7 @@
  */
 
 module uart_top
-	#(parameter DWIDTH = 11)
+	#(parameter DWIDTH = 12)
 	(
 
 	input clk,
@@ -33,7 +33,10 @@ module uart_top
 	
 	output cpu_start,
 	output quit_cmd,
-	output [31:2] start_adr
+	output [31:2] start_adr,
+    input [7:0] uart_io_char,
+    input uart_io_we,
+    output uart_io_full
 	//output tx_fifo_full,
 	//output tx_fifo_overrun,
 	//output tx_fifo_underrun,
@@ -135,7 +138,10 @@ uart_loop uart_loop (
 	.tx_wten(tx_wten),
 	.tx_fifo_full(tx_fifo_full),
 	.tx_fifo_overrun(tx_fifo_overrun),
-	.tx_fifo_underrun(tx_fifo_underrun)
+	.tx_fifo_underrun(tx_fifo_underrun),
+    .uart_io_char(uart_io_char),
+    .uart_io_we(uart_io_we),
+    .uart_io_full(uart_io_full)
 	);
 
 uart_rec_char uart_rec_char (

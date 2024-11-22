@@ -38,8 +38,11 @@ module uart_if(
 //`define TERM 8333
 //`define HARF 4166
 // clk:75MHz, 9600bps
-`define TERM 7812
-`define HARF 3906
+//`define TERM 7812
+//`define HARF 3906
+// clk:66.6MHz, 9600bps
+`define TERM 6944
+`define HARF 3472
 
 // clk:50MHz, 9600bps
 //`define TERM 5208

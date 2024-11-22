@@ -48,6 +48,7 @@ module ma_stage
 	output [15:2] dma_io_wadr,
 	output [31:0] dma_io_wdata,
     output [15:2] dma_io_radr,
+    output dma_io_radr_en,
     input [31:0] dma_io_rdata,
 	// from/to dma memory access interface
     input dma_we_ma,
@@ -130,6 +131,7 @@ assign dma_io_we = (&st_we) & (rd_data_ma[31:30] == 2'b11);
 assign dma_io_wadr = rd_data_ma[15:2];
 assign dma_io_wdata = st_wdata;
 assign dma_io_radr = rd_data_ma[15:2];
+assign dma_io_radr_en = (rd_data_ma[31:30] == 2'b11) & cmd_ld_ma;
 
 // load / next stage
 

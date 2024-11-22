@@ -38,6 +38,7 @@ module cpu_top
 	output [15:2] dma_io_wadr,
 	output [31:0] dma_io_wdata,
 	output [15:2] dma_io_radr,
+	output dma_io_radr_en,
 	input [31:0] dma_io_rdata_in,
 
     output ibus_ren,
@@ -393,6 +394,7 @@ ma_stage #(.DWIDTH(DWIDTH)) ma_stage (
 	.dma_io_wadr(dma_io_wadr),
 	.dma_io_wdata(dma_io_wdata),
 	.dma_io_radr(dma_io_radr),
+	.dma_io_radr_en(dma_io_radr_en),
 	.dma_io_rdata(dma_io_rdata),
 	.dma_we_ma(dma_we_ma),
 	.dataram_wadr_ma(dataram_wadr_ma),
