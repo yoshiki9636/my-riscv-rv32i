@@ -3,31 +3,31 @@
 //#define LP 10
 #define LP 1000000
 #define LP2 200
-#define TESTNUM 0x3c00
+#define TESTNUM 0x7000
 void pass();
 void fail(unsigned int val1, unsigned int val2, unsigned int val3);
 void wait();
 
-unsigned int bufa[TESTNUM];
-unsigned int bufb[TESTNUM];
+unsigned short bufa[TESTNUM];
+unsigned short bufb[TESTNUM];
 
 int main() {
     unsigned int* led = (unsigned int*)0xc000fe00;
 	*led = 0x7;
 	for(unsigned int i = 0; i < TESTNUM; i++) {
-		bufa[i] = i;
+		bufa[i] = (unsigned short)i;
 		//wait();
 	}
 	*led = 0x6;
 	for(unsigned int i = 0; i < TESTNUM; i++) {
 		//bufb[i] = i;
-		bufb[i] = TESTNUM - 1 - i;
+		bufb[i] = (unsigned short)(TESTNUM - 1 - i);
 		//wait();
 	}
 	*led = 0x5;
 	for(unsigned int i = 2; i < TESTNUM; i++) {
 		*led = i;
-		unsigned int c = bufb[TESTNUM-1-i];
+		unsigned short c = bufb[TESTNUM-1-i];
 		//unsigned int c = 0x20000 + TESTNUM - 1 - bufb[i];
 		//unsigned int c = (0xffff) & ( TESTNUM - 1 - bufb[i]);
 		if (bufa[i] != c) {

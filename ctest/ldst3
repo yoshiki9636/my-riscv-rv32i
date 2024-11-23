@@ -1,0 +1,5 @@
+ riscv32-unknown-linux-gnu-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o ldst_test3.o ldst_test3.c
+ riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o ldst_test3.o -T link.ld -o ldst_test3
+ riscv32-unknown-linux-gnu-objdump -b elf32-littleriscv -D ldst_test3 > ldst_test3.elf.dump
+ riscv32-unknown-linux-gnu-objcopy -O binary ldst_test3 ldst_test3.bin
+ od -An -tx4 -w4 -v ldst_test3.bin > ldst_test3.hex
