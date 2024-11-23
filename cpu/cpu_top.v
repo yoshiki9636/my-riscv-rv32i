@@ -27,8 +27,8 @@ module cpu_top
 	input d_ram_wen,
 	input d_read_sel,
 
-	input [13:2] i_ram_radr,
-	input [13:2] i_ram_wadr,
+	input [IWIDTH*1:2] i_ram_radr,
+	input [IWIDTH*1:2] i_ram_wadr,
 	output [31:0] i_ram_rdata,
 	input [31:0] i_ram_wdata,
 	input i_ram_wen,

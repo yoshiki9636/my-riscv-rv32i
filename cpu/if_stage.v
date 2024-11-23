@@ -33,9 +33,9 @@ module if_stage
 	// from monitor
 	//output [11:2] inst_radr_if,
 	//input [31:0] inst_rdata_id,	
-	input [13:2] i_ram_radr,
+	input [[IWIDTH+1:2] i_ram_radr,
 	output [31:0] i_ram_rdata,
-	input [13:2] i_ram_wadr,
+	input [[IWIDTH+1:2] i_ram_wadr,
 	input [31:0] i_ram_wdata,
 	input i_ram_wen,
 	input i_read_sel,
