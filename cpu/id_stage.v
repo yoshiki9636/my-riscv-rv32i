@@ -60,6 +60,7 @@ module id_stage(
 	output reg wbk_rd_reg_ex,
     output reg illegal_ops_ex,
 	// from EX
+	input jmp_purge_ex,
 	input jmp_purge_ma,
 	// from WB
 	input [4:0] rd_adr_wb,
@@ -306,7 +307,7 @@ wire cmd_all_except_nop =
 	| cmd_csr_id | cmd_ec_id | cmd_ecall_id | cmd_ebreak_id | cmd_uret_id  
 	| cmd_sret_id | cmd_mret_id | cmd_wfi_id;
 
-wire illegal_ops_id = ~(cmd_nop | cmd_all_except_nop) & ~jmp_purge_ma;
+wire illegal_ops_id = ~(cmd_nop | cmd_all_except_nop) & ~jmp_purge_ma & ~jmp_purge_ex;
 
 // destination register number
 wire [4:0] rd_adr_id = inst_rd;

@@ -9,7 +9,9 @@
  * @version		0.2 add ecall
  */
 
-module if_stage(
+module if_stage
+	#(parameter IWIDTH = 12)
+	(
 	input clk,
 	input rst_n,
 	// to ID stage
@@ -89,13 +91,13 @@ assign pc_data = {pc_if, 2'd0};
 
 wire [11:0] inst_radr_if; // input
 wire [31:0] inst_rdata_id; // output
-wire [13:2] iram_radr;
+wire [IWIDTH:2] iram_radr;
 
-assign inst_radr_if = pc_if[13:2]; // depend on size of iram
-assign iram_radr = i_read_sel ? i_ram_radr : pc_if[13:2] ;
+assign inst_radr_if = pc_if[IWIDTH:2]; // depend on size of iram
+assign iram_radr = i_read_sel ? i_ram_radr : pc_if[IWIDTH:2] ;
 assign i_ram_rdata = inst_rdata_id;
 
-inst_1r1w inst_1r1w (
+inst_1r1w #(.IWIDTH(IWIDTH)) inst_1r1w (
 	.clk(clk),
 	.ram_radr(iram_radr),
 	.ram_rdata(inst_rdata_id),

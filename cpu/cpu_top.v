@@ -9,7 +9,8 @@
  */
 
 module cpu_top
-	#(parameter DWIDTH = 12)
+	#(parameter IWIDTH = 12,
+	  parameter DWIDTH = 12)
 	(
 
 	input clk,
@@ -126,6 +127,7 @@ wire inst_rs1_valid;
 wire inst_rs2_valid;
 wire jmp_condition_ex;
 wire ecall_condition_ex;
+wire jmp_purge_ex;
 wire jmp_purge_ma;
 wire nohit_rs1_ex;
 wire nohit_rs2_ex;
@@ -185,7 +187,7 @@ cpu_status cpu_status (
 	.rst_pipe_wb(rst_pipe_wb)
 	);
 
-if_stage if_stage (
+if_stage #(.IWIDTH(IWIDTH)) if_stage (
 	.clk(clk),
 	.rst_n(rst_n),
 	.inst_id(inst_id),
@@ -265,6 +267,7 @@ id_stage id_stage (
 	.illegal_ops_ex(illegal_ops_ex),
 	.rd_adr_ex(rd_adr_ex),
 	.wbk_rd_reg_ex(wbk_rd_reg_ex),
+	.jmp_purge_ex(jmp_purge_ex),
 	.jmp_purge_ma(jmp_purge_ma),
 	.rd_adr_wb(rd_adr_wb),
 	.wbk_rd_reg_wb(wbk_rd_reg_wb),
@@ -357,6 +360,7 @@ ex_stage ex_stage (
     .csr_meie(csr_meie),
     .csr_mtie(csr_mtie),
     .csr_msie(csr_msie),
+	.jmp_purge_ex(jmp_purge_ex),
 	.jmp_purge_ma(jmp_purge_ma),
 	.stall(stall),
 	.rst_pipe(rst_pipe_ex)

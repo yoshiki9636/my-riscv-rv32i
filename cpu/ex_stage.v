@@ -95,6 +95,7 @@ module ex_stage(
     output csr_mtie,
     output csr_msie,
 	// to ID
+	output jmp_purge_ex,
 	output reg jmp_purge_ma,
 	// stall
 	input stall,
@@ -320,7 +321,7 @@ assign jmp_condition_ex = ~jmp_purge_ma & (
 assign ecall_condition_ex = ~jmp_purge_ma & (cmd_ecall_ex | illegal_ops_ex);
 
 // purge signal
-wire jmp_purge_ex = jmp_condition_ex | ecall_condition_ex;
+assign jmp_purge_ex = jmp_condition_ex | ecall_condition_ex;
 
 wire wbk_rd_reg_tmp = wbk_rd_reg_ex & ~jmp_purge_ma & ~illegal_ops_ex;
 wire cmd_st_tmp = cmd_st_ex & ~jmp_purge_ma;

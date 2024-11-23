@@ -8,19 +8,31 @@
  * @version		0.1
  */
 
-module inst_1r1w(
+//`define TANG_PRIMER
+`define ARTY_A7
+
+module inst_1r1w 
+	#(parameter IWIDTH = 12)
+	(
 	input clk,
-	input [11:0] ram_radr,
+	input [IWIDTH-1:0] ram_radr,
 	output [31:0] ram_rdata,
-	input [11:0] ram_wadr,
+	input [IWIDTH-1:0] ram_wadr,
 	input [31:0] ram_wdata,
 	input ram_wen
 	);
 
 // 4x1024 1r1w RAM
 
-reg[31:0] ram[0:4095];
-reg[11:0] radr;
+`ifdef TANG_PRIMER
+reg[31:0] ram[0:(2**IWIDTH)-1];
+`endif
+
+`ifdef ARTY_A7
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[31:0] ram[0:(2**IWIDTH)-1];
+`endif
+reg[IWIDTH-1:0] radr;
 
 always @ (posedge clk) begin
 	if (ram_wen)

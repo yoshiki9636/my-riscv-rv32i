@@ -8,6 +8,9 @@
  * @version		0.1
  */
 
+//`define TANG_PRIMER
+`define ARTY_A7
+
 module data_1r1w
 	#(parameter DRWIDTH = 9)
 	(
@@ -21,10 +24,24 @@ module data_1r1w
 
 // 4x1024 1r1w RAM
 
+`ifdef TANG_PRIMER
 reg[7:0] ram0[0:(2**DRWIDTH)-1];
 reg[7:0] ram1[0:(2**DRWIDTH)-1];
 reg[7:0] ram2[0:(2**DRWIDTH)-1];
 reg[7:0] ram3[0:(2**DRWIDTH)-1];
+`endif
+
+`ifdef ARTY_A7
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram0[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram1[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram2[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram3[0:(2**DRWIDTH)-1];
+`endif
+
 reg[DRWIDTH-1:0] radr;
 
 always @ (posedge clk) begin
