@@ -9,7 +9,8 @@
  */
 
 module uart_top
-	#(parameter DWIDTH = 12)
+    #(parameter IWIDTH = 12,
+      parameter DWIDTH = 12)
 	(
 
 	input clk,
@@ -23,8 +24,8 @@ module uart_top
 	output [31:0] d_ram_wdata,
 	output d_ram_wen,
 	output d_read_sel,
-	output [13:2] i_ram_radr,
-	output [13:2] i_ram_wadr,
+	output [IWIDTH+1:2] i_ram_radr,
+	output [IWIDTH+1:2] i_ram_wadr,
 	input [31:0] i_ram_rdata,
 	output [31:0] i_ram_wdata,
 	output i_ram_wen,
@@ -186,7 +187,7 @@ uart_send_char uart_send_char (
 	.crlf_in(crlf_in)	
 	);
 
-uart_logics  #(.DWIDTH(DWIDTH)) uart_logics (
+uart_logics  #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) uart_logics (
 	.clk(clk),
 	.rst_n(rst_n),
 	.i_ram_radr(i_ram_radr),

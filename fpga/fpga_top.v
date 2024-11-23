@@ -12,7 +12,8 @@
 `define ARTY_A7
 
 module fpga_top
-	#(parameter DWIDTH = 15)
+    #(parameter IWIDTH = 12,
+      parameter DWIDTH = 12)
 	(
 	input clkin,
 	input rst_n,
@@ -33,8 +34,8 @@ wire [31:0] d_ram_wdata;
 wire d_ram_wen;
 wire d_read_sel;
 
-wire [13:2] i_ram_radr;
-wire [13:2] i_ram_wadr;
+wire [IWIDTH+1:2] i_ram_radr;
+wire [IWIDTH+1:2] i_ram_wadr;
 wire [31:0] i_ram_rdata;
 wire [31:0] i_ram_wdata;
 wire i_ram_wen;
@@ -100,7 +101,7 @@ pll pll (
 	);
 `endif
 
-cpu_top #(.DWIDTH(DWIDTH)) cpu_top (
+cpu_top #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) cpu_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.cpu_start(cpu_start),
@@ -134,7 +135,7 @@ cpu_top #(.DWIDTH(DWIDTH)) cpu_top (
 	.interrupt_0(interrupt_0)
 	);
 
-uart_top #(.DWIDTH(DWIDTH)) uart_top (
+uart_top #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) uart_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.rx(rx),
