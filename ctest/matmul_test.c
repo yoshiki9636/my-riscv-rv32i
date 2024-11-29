@@ -1,68 +1,73 @@
 #include <stdio.h>
+#include <math.h>
 
 //#define LP 10
 #define LP 1000000
 #define LP2 200
+#define YSIZE 3
+#define XSIZE 7
+#define ZSIZE 2
+// workaround for libm_nano.a
+int __errno;
 void pass();
-void fail();
 void wait();
-int int_print( char* cbuf, int value, int type );
+int matrix_print( double* mat, int x, int y);
 int double_print( char* cbuf, double value, int digit );
-void uprint( char* buf, int length );
+void uprint( char* buf, int length, int ret );
 
 int main() {
-	char cbuf[13] = "Hello World!!";
-	char cbuf2[32];
-	int a = -12345;
-	double b = -876543.21;
-
-	// print Hello world
-	uprint( cbuf, 13 );
-
-	// pritn a
-	int length = int_print( cbuf2, a, 0 );
-	if (length > 10) {
-		fail();
+	double mat1[ZSIZE*YSIZE];
+	double mat2[XSIZE*ZSIZE];
+	double result[XSIZE*YSIZE];
+	
+	for (int j = 0; j < YSIZE; j++) {
+		for (int i = 0; i < ZSIZE; i++) {
+			mat1[j*ZSIZE+i] = sqrt((double)(j*ZSIZE+i+1));
+		}
 	}
-	uprint( cbuf2, length );
+	for (int j = 0; j < ZSIZE; j++) {
+		for (int i = 0; i < XSIZE; i++) {
+			mat2[j*XSIZE+i] = sqrt((double)(j*XSIZE+i+21));
+		}
+	}
+	for (int j = 0; j < YSIZE; j++) {
+		for (int i = 0; i < XSIZE; i++) {
+			result[j*XSIZE+i] = 0.0;
+		}
+	}
 
-	// pritn b
-	length = double_print( cbuf2, b, 9 );
+	for(int j = 0; j < YSIZE; j++) {
+		for(int i = 0; i < XSIZE; i++) {
+			for(int k = 0; k < ZSIZE; k++) {
+				result[j*XSIZE+i] += mat1[j*ZSIZE+k] * mat2[k*XSIZE+i];
+			}
+		}
+	}
 
-	uprint( cbuf2, length );
+	uprint( "mat1\n", 6, 0 );
+	matrix_print( mat1, ZSIZE, YSIZE);
+	uprint( "\nmat2\n", 8, 0 );
+	matrix_print( mat2, XSIZE, ZSIZE);
+	uprint( "\nresult\n", 10, 0 );
+	matrix_print( result, XSIZE, YSIZE);
 	pass();
 	return 0;
 }
 
-int int_print( char* cbuf, int value, int type ) {
-	// type 0 : digit  1:hex
-	unsigned char buf[32];
-	int ofs = 0;
-	int cntr = 0;
-	if (type == 0) { // int
-		if (value < 0) {
-			cbuf[ofs++] = 0x2d;
-			value = -value;
+int matrix_print( double* mat, int x, int y) {
+	char cbuf2[32];
+	for(int j = 0; j < y; j++) {
+		for(int i = 0; i < x; i++) {
+			int length = double_print( cbuf2, mat[j*x+i], 9 );
+			if ( i == x - 1 ) {
+				uprint( cbuf2, length, 1 );
+			}
+			else {
+				uprint( cbuf2, length, 2 );
+			}
 		}
-		while(value > 0) {
-			buf[cntr++] = (unsigned char)(value % 10);
-			value = value / 10;
-		}
-		for(int i = cntr - 1; i >= 0; i--) {	
-			cbuf[ofs++] = buf[i] + 0x30;
-		}	
 	}
-	else { //unsinged int
-		unsigned int uvalue = (unsigned int)value;
-		while(uvalue > 0) {
-			buf[cntr++] = (unsigned char)(uvalue % 10);
-			uvalue = uvalue / 10;
-		}
-		for(int i = cntr - 1; i >= 0; i--) {	
-			cbuf[ofs++] = buf[i] + 0x30;
-		}	
-	}
-	return ofs;	
+	return 0;
 }
 
 int double_print( char* cbuf, double value, int digit ) {
@@ -111,7 +116,7 @@ int double_print( char* cbuf, double value, int digit ) {
 	return cntr;	
 }
 
-void uprint( char* buf, int length ) {
+void uprint( char* buf, int length, int ret ) {
     unsigned int* led = (unsigned int*)0xc000fe00;
     unsigned int* uart_out = (unsigned int*)0xc000fc00;
     unsigned int* uart_status = (unsigned int*)0xc000fc04;
@@ -122,8 +127,11 @@ void uprint( char* buf, int length ) {
 			flg = *uart_status;
 		}
 		*uart_out = (i == length+2) ? 0 :
-		            (i == length+1) ? 0x0a :
-		            (i == length) ? 0x0d : buf[i];
+		            ((i == length+1)&&(ret != 1)) ? 0 :
+		            ((i == length+1)&&(ret == 1)) ? 0x0a :
+		            ((i == length)&&(ret == 0)) ? 0 :
+		            ((i == length)&&(ret == 1)) ? 0x0d :
+		            ((i == length)&&(ret == 2)) ? 0x20 : buf[i];
 		*led = i;
 	}
 	//return 0;
@@ -138,18 +146,6 @@ void pass() {
 		wait();
 		val++;
 		*led = val & 0x7777;
-    }
-}
-
-void fail() {
-    unsigned int* led = (unsigned int*)0xc000fe00;
-    unsigned int val;
-    unsigned int timer,timer2;
-    val = 0;
-    while(1) {
-		wait();
-		val++;
-		*led = val & 0x1111;
     }
 }
 
