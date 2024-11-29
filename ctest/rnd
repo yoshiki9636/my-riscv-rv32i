@@ -1,5 +1,5 @@
- riscv32-unknown-linux-gnu-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o rand_test.o rand_test.c 
- riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o rand_test.o -T link.ld -o rand_test --no-relax /opt/riscv32i/riscv32-unknown-elf/lib/libc_nano.a  /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a
- riscv32-unknown-linux-gnu-objdump -b elf32-littleriscv -D rand_test > rand_test.elf.dump
- riscv32-unknown-linux-gnu-objcopy -O binary rand_test rand_test.bin
+ riscv32-unknown-elf-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o rand_test.o rand_test.c 
+ riscv32-unknown-elf-ld -b elf32-littleriscv start.o rand_test.o -T link.ld -o rand_test --no-relax /opt/riscv32i/riscv32-unknown-elf/lib/libc_nano.a  /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a
+ riscv32-unknown-elf-objdump -b elf32-littleriscv -D rand_test > rand_test.elf.dump
+ riscv32-unknown-elf-objcopy -O binary rand_test rand_test.bin
  od -An -tx4 -w4 -v rand_test.bin > rand_test.hex

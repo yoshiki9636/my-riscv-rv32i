@@ -1,6 +1,5 @@
- riscv32-unknown-linux-gnu-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o sqrt_test.o sqrt_test.c
- riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o sqrt_test.o -T link.ld -o sqrt_test --no-relax /opt/riscv32i/riscv32-unknown-elf/lib/libm_nano.a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a 
- #riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o sqrt_test.o -T link.ld -o sqrt_test --no-relax /opt/riscv32i/riscv32-unknown-elf/lib/libm.a  /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a
- riscv32-unknown-linux-gnu-objdump -b elf32-littleriscv -D sqrt_test > sqrt_test.elf.dump
- riscv32-unknown-linux-gnu-objcopy -O binary sqrt_test sqrt_test.bin
+ riscv32-unknown-elf-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o sqrt_test.o sqrt_test.c
+ riscv32-unknown-elf-ld -b elf32-littleriscv start.o sqrt_test.o -T link.ld -o sqrt_test --no-relax /opt/riscv32i/riscv32-unknown-elf/lib/libm_nano.a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a 
+ riscv32-unknown-elf-objdump -b elf32-littleriscv -D sqrt_test > sqrt_test.elf.dump
+ riscv32-unknown-elf-objcopy -O binary sqrt_test sqrt_test.bin
  od -An -tx4 -w4 -v sqrt_test.bin > sqrt_test.hex

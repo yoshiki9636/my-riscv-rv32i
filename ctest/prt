@@ -1,5 +1,5 @@
- riscv32-unknown-linux-gnu-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o print_test.o print_test.c
- riscv32-unknown-linux-gnu-ld -b elf32-littleriscv start.o print_test.o -T link.ld -o print_test
- riscv32-unknown-linux-gnu-objdump -b elf32-littleriscv -D print_test > print_test.elf.dump
- riscv32-unknown-linux-gnu-objcopy -O binary print_test print_test.bin
+ riscv32-unknown-elf-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o print_test.o print_test.c
+ riscv32-unknown-elf-ld -b elf32-littleriscv start.o print_test.o -T link.ld -o print_test
+ riscv32-unknown-elf-objdump -b elf32-littleriscv -D print_test > print_test.elf.dump
+ riscv32-unknown-elf-objcopy -O binary print_test print_test.bin
  od -An -tx4 -w4 -v print_test.bin > print_test.hex
