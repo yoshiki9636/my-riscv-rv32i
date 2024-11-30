@@ -4,13 +4,14 @@
 //#define LP 10
 #define LP 1000000
 #define LP2 200
-#define YSIZE 3
-#define XSIZE 7
-#define ZSIZE 2
+#define YSIZE 16
+#define XSIZE 16
+#define ZSIZE 16
 // workaround for libm_nano.a
 int __errno;
 void pass();
 void wait();
+int mat_mul( double* mat1, double* mat2, double* result, int x, int y, int z);
 int matrix_print( double* mat, int x, int y);
 int double_print( char* cbuf, double value, int digit );
 void uprint( char* buf, int length, int ret );
@@ -36,13 +37,7 @@ int main() {
 		}
 	}
 
-	for(int j = 0; j < YSIZE; j++) {
-		for(int i = 0; i < XSIZE; i++) {
-			for(int k = 0; k < ZSIZE; k++) {
-				result[j*XSIZE+i] += mat1[j*ZSIZE+k] * mat2[k*XSIZE+i];
-			}
-		}
-	}
+	mat_mul( mat1, mat2, result, XSIZE, YSIZE, ZSIZE);
 
 	uprint( "mat1\n", 6, 0 );
 	matrix_print( mat1, ZSIZE, YSIZE);
@@ -51,6 +46,17 @@ int main() {
 	uprint( "\nresult\n", 10, 0 );
 	matrix_print( result, XSIZE, YSIZE);
 	pass();
+	return 0;
+}
+
+int mat_mul( double* mat1, double* mat2, double* result, int x, int y, int z) {
+	for(int j = 0; j < y; j++) {
+		for(int i = 0; i < x; i++) {
+			for(int k = 0; k < z; k++) {
+				result[j*x+i] += mat1[j*z+k] * mat2[k*x+i];
+			}
+		}
+	}
 	return 0;
 }
 
