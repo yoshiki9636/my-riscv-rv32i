@@ -1,5 +1,0 @@
- riscv32-unknown-elf-gcc -march=rv32i -mabi=ilp32 -mstrict-align -mpreferred-stack-boundary=4 -c -o print_test2.o print_test2.c 
- riscv32-unknown-elf-ld -b elf32-littleriscv start.o print_test2.o -T link.ld -o print_test2 --no-relax /opt/riscv32i/lib/gcc/riscv32-unknown-elf/14.2.0/libgcc.a
- riscv32-unknown-elf-objdump -b elf32-littleriscv -D print_test2 > print_test2.elf.dump
- riscv32-unknown-elf-objcopy -O binary print_test2 print_test2.bin
- od -An -tx4 -w4 -v print_test2.bin > print_test2.hex
