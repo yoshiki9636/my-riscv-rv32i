@@ -8,7 +8,9 @@
  * @version		0.1
  */
 
-module ma_stage(
+module ma_stage
+	#(parameter DWIDTH = 11)
+	(
 	input clk,
 	input rst_n,
 	
@@ -27,17 +29,34 @@ module ma_stage(
 	output reg [31:0] rd_data_wb,
 	output reg wbk_rd_reg_wb,
 	output [31:0] ld_data_wb,
+	// to LSU
+	input [DWIDTH-3:0] ram_radr_all,
+	output [127:0] ram_rdata_all,
+	input ram_ren_all,
+	input [DWIDTH-3:0] ram_wadr_all,
+	input [127:0] ram_wdata_all,
+	input ram_wen_all,
 	// to Memory
-	input [11:2] d_ram_radr,
+	input [DWIDTH+1:2] d_ram_radr,
 	output [31:0] d_ram_rdata,
-	input [11:2] d_ram_wadr,
+	input [DWIDTH+1:2] d_ram_wadr,
 	input [31:0] d_ram_wdata,
 	input d_ram_wen,
 	input d_read_sel,
-	// to IO
-	output [3:0] st_we_io,
-	output [11:2] st_adr_io,
-	output [31:0] st_data_io,
+	// from/to IO
+	output dma_io_we,
+	output [15:2] dma_io_wadr,
+	output [31:0] dma_io_wdata,
+    output [15:2] dma_io_radr,
+    output dma_io_radr_en,
+    input [31:0] dma_io_rdata,
+	// from/to dma memory access interface
+    input dma_we_ma,
+    input [15:2] dataram_wadr_ma,
+    input [15:0] dataram_wdata_ma,
+    input dma_re_ma,
+    input [15:2] dataram_radr_ma,
+    output [15:0] dataram_rdata_wb,
 
 	// stall
 	input stall,
@@ -108,35 +127,76 @@ wire [3:0] st_we = (ldst_code_ma == 3'b000) ? be_byte :
 				   (ldst_code_ma == 3'b010) ? { cmd_st_ma, cmd_st_ma, cmd_st_ma, cmd_st_ma } : 4'd0;
 
 wire [3:0] st_we_mem = st_we & { 4{ (rd_data_ma[31:30] != 2'b11) }};
-assign      st_we_io = st_we & { 4{ (rd_data_ma[31:30] == 2'b11) }};
-assign st_adr_io = rd_data_ma[11:2];
-assign st_data_io = st_wdata;
+assign dma_io_we = (&st_we) & (rd_data_ma[31:30] == 2'b11);
+assign dma_io_wadr = rd_data_ma[15:2];
+assign dma_io_wdata = st_wdata;
+assign dma_io_radr = rd_data_ma[15:2];
+assign dma_io_radr_en = (rd_data_ma[31:30] == 2'b11) & cmd_ld_ma;
 
 // load / next stage
 
 // data memory
 reg  [31:0] ld_data_roll;
-wire sel_data_rd_ma;
-wire [11:2] data_radr_ma;
+//wire sel_data_rd_ma;
+wire [DWIDTH+1:2] data_radr_ma;
+wire [31:0] data_rdata_wb_mem;
 wire [31:0] data_rdata_wb;
-wire [11:2] data_wadr_ma;
+wire [DWIDTH+1:2] data_wadr_ma;
 wire [31:0] data_wdata_ma;
 wire [3:0] data_we_ma;
 
-assign data_radr_ma = d_read_sel ? d_ram_radr : rd_data_ma[11:2];
-assign data_wadr_ma = d_ram_wen ? d_ram_wadr : rd_data_ma[11:2];
-assign data_wdata_ma = d_ram_wen ? d_ram_wdata : st_wdata;
-assign data_we_ma = d_ram_wen ? 4'b1111 : st_we_mem;
-assign sel_data_rd_ma = cmd_ld_ma; 
+generate
+if (DWIDTH < 15) begin
+assign data_radr_ma = d_read_sel ? d_ram_radr :
+					  dma_re_ma ? dataram_radr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
+assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
+					  dma_we_ma ? dataram_wadr_ma[DWIDTH+1:2] : rd_data_ma[DWIDTH+1:2];
+end
+else if (DWIDTH >= 15) begin
+assign data_radr_ma = d_read_sel ? d_ram_radr :
+					  dma_re_ma ? { { (DWIDTH-14){ 1'b0 }}, dataram_radr_ma[15:2] } : rd_data_ma[DWIDTH+1:2];
+assign data_wadr_ma = d_ram_wen ? d_ram_wadr :
+					  dma_we_ma ? { { (DWIDTH-14){ 1'b0 }}, dataram_wadr_ma[15:2] } : rd_data_ma[DWIDTH+1:2];
+end
+endgenerate
 
-data_1r1w data_1r1w (
+assign data_wdata_ma = d_ram_wen ? d_ram_wdata :
+					   dma_we_ma ? { 16'd0, dataram_wdata_ma } : st_wdata;
+assign data_we_ma = (d_ram_wen | dma_we_ma) ? 4'b1111 : st_we_mem;
+//assign sel_data_rd_ma = cmd_ld_ma; 
+assign dataram_rdata_wb = data_rdata_wb_mem[15:0];
+
+data_ram #(.DWIDTH(DWIDTH)) data_ram (
 	.clk(clk),
-	.ram_radr(data_radr_ma),
-	.ram_rdata(data_rdata_wb),
-	.ram_wadr(data_wadr_ma),
+	.rst_n(rst_n),
+	.ram_radr_part(data_radr_ma),
+	.ram_rdata(data_rdata_wb_mem),
+	.ram_wadr_part(data_wadr_ma),
 	.ram_wdata(data_wdata_ma),
-	.ram_wen(data_we_ma)
+	.ram_wen(data_we_ma),
+
+	.ram_radr_all(ram_radr_all),
+	.ram_rdata_all(ram_rdata_all),
+	.ram_ren_all(ram_ren_all),
+	.ram_wadr_all(ram_wadr_all),
+	.ram_wdata_all(ram_wdata_all),
+	.ram_wen_all(ram_wen_all)
 	);
+
+
+
+
+wire dma_io_ren_ma = cmd_ld_ma & (rd_data_ma[31:30] == 2'b11);
+
+reg dma_io_ren_wb;
+always @ ( posedge clk or negedge rst_n) begin   
+	if (~rst_n)
+		dma_io_ren_wb <= 1'b0;
+	else
+		dma_io_ren_wb <= dma_io_ren_ma;
+end
+
+assign data_rdata_wb = dma_io_ren_wb ? dma_io_rdata : data_rdata_wb_mem;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n)

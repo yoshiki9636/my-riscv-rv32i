@@ -7,6 +7,7 @@
 # * @copylight	2021 Yoshiki Kurokawa
 # * @license		https://opensource.org/licenses/MIT     MIT license
 # * @version		0.1
+# * @version		0.2 define is added
 # */
 
 use Getopt::Long;
@@ -15,11 +16,19 @@ GetOptions('v' => \$v);
 
 $name = $ARGV[0];
 $pc = 0;
-%value = ();
+@value = ();
+%defvalue = ();
 
 while(<>) {
 	if (/^;/) { next; }
 	elsif (/^:(\w+)/) { $value{$1} = $pc; }
+	elsif (/^#immdefine (\w+) (\w+)/) {
+		@def = ( @def, $1 );
+		$s = $1;
+		$w = $2;
+ 		if ($w =~ /^0x/) { $defvalue{$s} = hex($w); }
+		else { $defvalue{$s} = int($w); }
+	}
 	elsif (/^\s*nop/) {
 		$pc += 4; }
 	elsif (/^\s*lui\s+x(\d+),\s*(\w+)/) {
@@ -96,6 +105,16 @@ while(<>) {
 		$pc += 4; }
 	elsif (/^\s*bgeu\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$pc += 4; }
+	elsif (/^\s*csrr[wsc]\s+x(\d+),\s*(\w+),\s*x(\d+)/) {
+		$pc += 4; }
+	elsif (/^\s*csrr[wsc]i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
+		$pc += 4; }
+	elsif (/^\s*ecall/) {
+		$pc += 4; }
+	elsif (/^\s*mret/) {
+		$pc += 4; }
+	elsif (/^\s*illegal_ops/) {
+		$pc += 4; }
 }
 
 $ARGV[0] = $name;
@@ -103,6 +122,7 @@ $pc = 0;
 
 while(<>) {
 	if (/^;/) { next; }
+	if (/^#immdefine/) { next; }
 	elsif (/^:(\w+)/) {
 		if ($v == 1) {
 			print " // $_";
@@ -115,20 +135,27 @@ while(<>) {
 	}
 	elsif (/^\s*lui\s+x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
-		$imm = $2 << 12;
+		#if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		$w = $2;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 12; } elsif ($w =~ /^0x/) { $imm = hex($w) << 12 ; } else { $imm = $w << 12; }
 		$op1 = 0x0d << 2;
 		$code = $imm + $rd + $op1 + 3;
 	}
 	elsif (/^\s*auipc\s+x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
-		$imm = $2 << 12;
+		#if (defined($defvalue{$2})) { $imm = $defvalue{$2} << 12; } else { $imm = $2 << 12; }
+		$w = $2;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 12; } elsif ($w =~ /^0x/) { $imm = hex($w) << 12 ; } else { $imm = $w << 12; }
 		$op1 = 0x05 << 2;
 		$code = $imm + $rd + $op1 + 3;
 	}
 	elsif (/^\s*addi\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
+		#print "$w $imm\n";
 		$op1 = 0x04 << 2;
 		$op2 = 0x0 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -136,7 +163,9 @@ while(<>) {
 	elsif (/^\s*slti\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x2 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -144,7 +173,9 @@ while(<>) {
 	elsif (/^\s*sltiu\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x3 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -152,7 +183,9 @@ while(<>) {
 	elsif (/^\s*xori\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x4 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -160,7 +193,9 @@ while(<>) {
 	elsif (/^\s*ori\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x6 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -168,7 +203,9 @@ while(<>) {
 	elsif (/^\s*andi\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
 		$rd = $1 << 7;
 		$rs1 = $2 << 15;
-		$imm = $3 << 20;
+		#if (defined($defvalue{$3})) { $imm = $defvalue{$3} << 20; } else { $imm = $3 << 20; }
+		$w = $3;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $imm = hex($w) << 20 ; } else { $imm = $w << 20; }
 		$op1 = 0x04 << 2;
 		$op2 = 0x7 << 12;
 		$code = $imm + $rs1 + $rd + $op1 + $op2 + 3;
@@ -359,6 +396,7 @@ while(<>) {
 	}
 	elsif (/^\s*jal\s+x(\d+),\s*(\w+)/) {
         if (defined($value{$2})) { $ofs = $value{$2} - $pc; }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$rd = $1 << 7;
 		$ofs1 = (($ofs >> 20) & 0x1) << 31;
@@ -370,6 +408,7 @@ while(<>) {
 	}
 	elsif (/^\s*jalr\s+x(\d+),\s*x(\d+),\s*(\w+)/) {
         if (defined($value{$3})) { $ofs = $value{$3};  }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$ofs = ($ofs & 0xfff) << 20;
 		$rd = $1 << 7;
@@ -382,6 +421,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
         if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+		elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
         else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -395,6 +435,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -408,6 +449,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -421,6 +463,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -434,6 +477,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -447,6 +491,7 @@ while(<>) {
 		$rs2 = $2 << 20;
 		$rs1 = $1 << 15;
                 if (defined($value{$3})) { $ofs = ($value{$3} - $pc) & 0x1fff; }
+				elsif ( $3 =~ /0x[0-9abcdefABCDEF]+/ ) { $ofs = $3; }
                 else { die "Error: Label $3 is not defined."; }
 		$ofs1 = (($ofs >> 12) & 0x1) << 31;
 		$ofs2 = (($ofs >>  5) & 0x3f) << 25;
@@ -455,6 +500,39 @@ while(<>) {
 		$op1 = 0x18 << 2;
 		$op2 = 0x7 << 12;
 		$code = $ofs1 + $ofs2 + $ofs3 + $ofs4 + $rs2 + $rs1 + $op1 + $op2 + 3;
+	}
+	elsif (/^\s*csrr([wsc])\s+x(\d+),\s*(\w+),\s*x(\d+)/) {
+		$rd = $2 << 7;
+		$rs1 = $4 << 15;
+		$op1 = 0x73;
+		$op2 = ($1 eq "w") ? 1 :
+		       ($1 eq "s") ? 2 : 3;
+		$op2 = $op2 << 12;
+		$w = $3;
+		if (defined($defvalue{$w})) { $ofs = $defvalue{$w} << 20; } elsif ($w =~ /^0x/) { $ofs = hex($w) << 20 ; } else { $ofs = $w << 20; }
+		$code = $rs1 + $rd + $op1 + $op2 + $ofs;
+	}
+	elsif (/^\s*csrr([wsc])i\s+x(\d+),\s*(\w+),\s*(\w+)/) {
+		$rd = $2 << 7;
+		$w2 = $3;
+		$w3 = $1;
+		$w = $4;
+		if (defined($defvalue{$w})) { $imm = $defvalue{$w} << 15; } elsif ($w =~ /^0x/) { $imm = hex($w) << 15 ; } else { $imm = $w << 15; }
+		$op1 = 0x73;
+		$op2 = ($w3 eq "w") ? 5 :
+		       ($w3 eq "s") ? 6 : 7;
+		$op2 = $op2 << 12;
+		if (defined($defvalue{$w2})) { $ofs = $defvalue{$w2} << 20; } elsif ($w2 =~ /0x/) { $ofs = hex($w2) << 20 ; } else { $ofs = $w2 << 20; }
+		$code = $rd + $imm + $op1 + $op2 + $ofs;
+	}
+	elsif (/^\s*ecall/) {
+		$code = 0x73;
+	}
+	elsif (/^\s*mret/) {
+		$code = 0x30200073;
+	}
+	elsif (/^\s*illegal_ops/) {
+		$code = 0xffffffff;
 	}
 	else {
 		print "ERROR no format found : $_\n";

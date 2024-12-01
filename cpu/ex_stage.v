@@ -47,12 +47,14 @@ module ex_stage(
     input cmd_csr_ex,
     input [11:0] csr_ofs_ex,
 	input [4:0] csr_uimm_ex,
+	input [2:0] csr_op2_ex,
     input cmd_ecall_ex,
     input cmd_ebreak_ex,
     input cmd_uret_ex,
     input cmd_sret_ex,
     input cmd_mret_ex,
     input cmd_wfi_ex,
+    input illegal_ops_ex,
 	input [4:0] rd_adr_ex,
 	input wbk_rd_reg_ex,
 	
@@ -79,7 +81,21 @@ module ex_stage(
     // to IF
 	output [31:2] jmp_adr_ex,
 	output jmp_condition_ex,
+	output [31:2] csr_mtvec_ex,
+    output ecall_condition_ex,
+	output [31:2] csr_mepc_ex,
+	output [31:2] csr_sepc_ex,
+	// from somewhere...
+	input g_interrupt,
+	input [1:0] g_interrupt_priv,
+	input [1:0] g_current_priv,
+    input post_jump_cmd_cond,
+	output g_exception,
+    output csr_meie,
+    output csr_mtie,
+    output csr_msie,
 	// to ID
+	output jmp_purge_ex,
 	output reg jmp_purge_ma,
 	// stall
 	input stall,
@@ -143,10 +159,10 @@ wire [31:0] adr_s2 = cmd_auipc_ex ? auipc_data :
                      cmd_jal_ex ? jal_ofs :
 					 cmd_jalr_ex ? jalr_ofs : br_ofs;
 
+
 // currently not implemented
-// csr
 // fence, sfence
-// ecall, ebreak, eret
+// ebreak, eret
 
 // ALU
 
@@ -193,6 +209,47 @@ wire [31:0] pcp4_ex = { pc_ex, 2'd0 } + 32'd4;
 
 wire [31:0] jump_adr = adr_s1 + adr_s2;
 
+// csrs , ecall
+wire [31:0] csr_rd_data;
+
+csr_array csr_array (
+	.clk(clk),
+	.rst_n(rst_n),
+	.cmd_csr_ex(cmd_csr_ex),
+	.csr_ofs_ex(csr_ofs_ex),
+	.csr_uimm_ex(csr_uimm_ex),
+	.csr_op2_ex(csr_op2_ex),
+	.rs1_sel(rs1_sel),
+	.csr_rd_data(csr_rd_data),
+	.csr_mtvec_ex(csr_mtvec_ex),
+	.g_interrupt(g_interrupt),
+	.g_interrupt_priv(g_interrupt_priv),
+	.g_current_priv(g_current_priv),
+	.post_jump_cmd_cond(post_jump_cmd_cond),
+	.illegal_ops_ex(illegal_ops_ex),
+	.g_exception(g_exception),
+	.csr_mepc_ex(csr_mepc_ex),
+	.csr_sepc_ex(csr_sepc_ex),
+    .cmd_mret_ex(cmd_mret_ex),
+    .cmd_sret_ex(cmd_sret_ex),
+    .cmd_uret_ex(cmd_uret_ex),
+    .csr_meie(csr_meie),
+    .csr_mtie(csr_mtie),
+    .csr_msie(csr_msie),
+	//.csr_mie(csr_mie),
+    .cmd_ecall_ex(cmd_ecall_ex),
+	.pc_ex(pc_ex),
+	.stall(stall)
+	);
+
+// exception block
+
+exception exception (
+	.clk(clk),
+	.rst_n(rst_n),
+	.illegal_ops_ex(illegal_ops_ex),
+	.g_exception(g_exception)
+	);
 
 // Post-selector
 // ALU
@@ -244,6 +301,7 @@ wire [31:0] lui_data = { lui_auipc_imm_ex, 12'd0 };
 wire [31:0] rd_data_ex = cmd_lui_ex ? lui_data :
                          (cmd_jal_ex | cmd_jalr_ex) ? pcp4_ex :
 						 cmd_auipc_ex ? jump_adr :
+                         cmd_csr_ex ? csr_rd_data :
                          alu_sel;
 
 // jamp/br
@@ -259,7 +317,13 @@ assign jmp_condition_ex = ~jmp_purge_ma & (
 					      sltu & (alu_code_ex == 3'b110) |
 					      sbgu & (alu_code_ex == 3'b111) ));
 
-wire wbk_rd_reg_tmp = wbk_rd_reg_ex & ~jmp_purge_ma;
+// ecall
+assign ecall_condition_ex = ~jmp_purge_ma & (cmd_ecall_ex | illegal_ops_ex);
+
+// purge signal
+assign jmp_purge_ex = jmp_condition_ex | ecall_condition_ex;
+
+wire wbk_rd_reg_tmp = wbk_rd_reg_ex & ~jmp_purge_ma & ~illegal_ops_ex;
 wire cmd_st_tmp = cmd_st_ex & ~jmp_purge_ma;
 
 // FF to MA
@@ -293,7 +357,7 @@ always @ ( posedge clk or negedge rst_n) begin
 		wbk_rd_reg_ma <= wbk_rd_reg_tmp;
 		st_data_ma <= st_data_ex;
 		ldst_code_ma <= alu_code_ex;
-		jmp_purge_ma <= jmp_condition_ex;
+		jmp_purge_ma <= jmp_purge_ex;
 	end
 end
 

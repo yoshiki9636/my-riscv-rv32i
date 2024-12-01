@@ -8,21 +8,24 @@
  * @version		0.1
  */
 
-module uart_top(
+module uart_top
+    #(parameter IWIDTH = 12,
+      parameter DWIDTH = 12)
+	(
 
 	input clk,
 	input rst_n,
 	input rx,
 	output tx,
 
-	output [11:2] d_ram_radr,
-	output [11:2] d_ram_wadr,
+	output [DWIDTH+1:2] d_ram_radr,
+	output [DWIDTH+1:2] d_ram_wadr,
 	input [31:0] d_ram_rdata,
 	output [31:0] d_ram_wdata,
 	output d_ram_wen,
 	output d_read_sel,
-	output [11:2] i_ram_radr,
-	output [11:2] i_ram_wadr,
+	output [IWIDTH+1:2] i_ram_radr,
+	output [IWIDTH+1:2] i_ram_wadr,
 	input [31:0] i_ram_rdata,
 	output [31:0] i_ram_wdata,
 	output i_ram_wen,
@@ -31,13 +34,16 @@ module uart_top(
 	
 	output cpu_start,
 	output quit_cmd,
-	output [31:2] start_adr
-	//output wire tx_fifo_full,
-	//output wire tx_fifo_overrun,
-	//output wire tx_fifo_underrun,
-	//output wire rx_fifo_full,
-	//output wire rx_fifo_overrun,
-	//output wire rx_fifo_underrun,
+	output [31:2] start_adr,
+    input [7:0] uart_io_char,
+    input uart_io_we,
+    output uart_io_full
+	//output tx_fifo_full,
+	//output tx_fifo_overrun,
+	//output tx_fifo_underrun,
+	//output rx_fifo_full,
+	//output rx_fifo_overrun,
+	//output rx_fifo_underrun,
 	//output [3:0] cmd_status,
 	//output [2:0] rx_fifo_rcntr,
 	//output [7:0] rout,
@@ -86,6 +92,7 @@ wire dump_running;
 wire trush_running;
 //wire data_en;
 wire crlf_in;
+wire [2:0] rx_fifo_rcntr;
 
 /*
 always @ (posedge clk or negedge rst_n) begin
@@ -112,7 +119,7 @@ uart_if uart_if (
 	.tx_fifo_full(tx_fifo_full),
 	.tx_fifo_overrun(tx_fifo_overrun),
 	.tx_fifo_underrun(tx_fifo_underrun),
-	.rx_fifo_rcntr(rx_fifo_rcntr)
+	.rx_fifo_rcntrs(rx_fifo_rcntr)
 	);
 
 uart_loop uart_loop (
@@ -132,7 +139,10 @@ uart_loop uart_loop (
 	.tx_wten(tx_wten),
 	.tx_fifo_full(tx_fifo_full),
 	.tx_fifo_overrun(tx_fifo_overrun),
-	.tx_fifo_underrun(tx_fifo_underrun)
+	.tx_fifo_underrun(tx_fifo_underrun),
+    .uart_io_char(uart_io_char),
+    .uart_io_we(uart_io_we),
+    .uart_io_full(uart_io_full)
 	);
 
 uart_rec_char uart_rec_char (
@@ -177,7 +187,7 @@ uart_send_char uart_send_char (
 	.crlf_in(crlf_in)	
 	);
 
-uart_logics uart_logics (
+uart_logics  #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) uart_logics (
 	.clk(clk),
 	.rst_n(rst_n),
 	.i_ram_radr(i_ram_radr),

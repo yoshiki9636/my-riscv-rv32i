@@ -8,32 +8,53 @@
  * @version		0.1
  */
 
-module fpga_top(
+//`define TANG_PRIMER
+`define ARTY_A7
+
+module fpga_top
+    #(parameter IWIDTH = 12,
+      parameter DWIDTH = 12)
+	(
 	input clkin,
 	input rst_n,
 	input rx,
 	output tx,
-	output [2:0] rgb_led
+	input interrupt_0,
+	output [2:0] rgb_led,
+	output [2:0] rgb_led1,
+	output [2:0] rgb_led2,
+	output [2:0] rgb_led3
 
 	);
 
-wire [11:2] d_ram_radr;
-wire [11:2] d_ram_wadr;
+wire [DWIDTH+1:2] d_ram_radr;
+wire [DWIDTH+1:2] d_ram_wadr;
 wire [31:0] d_ram_rdata;
 wire [31:0] d_ram_wdata;
 wire d_ram_wen;
 wire d_read_sel;
 
-wire [11:2] i_ram_radr;
-wire [11:2] i_ram_wadr;
+wire [IWIDTH+1:2] i_ram_radr;
+wire [IWIDTH+1:2] i_ram_wadr;
 wire [31:0] i_ram_rdata;
 wire [31:0] i_ram_wdata;
 wire i_ram_wen;
 wire i_read_sel;
 
-wire [11:2] st_adr_io;
-wire [3:0] st_we_io;
-wire [31:0] st_data_io;
+wire dma_io_we;
+wire [15:2] dma_io_wadr;
+wire [31:0] dma_io_wdata;
+wire [15:2] dma_io_radr;
+wire dma_io_radr_en;
+wire [31:0] dma_io_rdata;
+wire [31:0] dma_io_rdata_in = 32'd0;
+wire [31:0] dma_io_rdata_in_2;
+wire ibus_ren;
+wire [19:2] ibus_radr;
+wire [15:0] ibus32_rdata = 16'd0;
+wire ibus_wen;
+wire [19:2] ibus_wadr;
+wire [15:0] ibus32_wdata;
 
 wire [31:2] start_adr;
 wire cpu_start;
@@ -41,13 +62,36 @@ wire quit_cmd;
 wire [31:0] pc_data;
 
 wire clk;
-wire clklock;
 wire stdby = 1'b0 ;
 // for debug
 wire tx_fifo_full;
 wire tx_fifo_overrun;
 wire tx_fifo_underrun;
 
+// for uart output
+wire [7:0] uart_io_char;
+wire  uart_io_we;
+wire  uart_io_full;
+
+
+`ifdef ARTY_A7
+wire locked;
+ // Instantiation of the clocking network
+ //--------------------------------------
+  clk_wiz_0 clknetwork
+   (
+    // Clock out ports
+    .clk_out1           (clk),
+    // Status and control signals
+    .reset              (~rst_n),
+    .locked             (locked),
+   // Clock in ports
+    .clk_in1            (clkin)
+);
+`endif
+
+`ifdef TANG_PRIMER
+wire clklock;
 pll pll (
 	.refclk(clkin),
 	.reset(~rst_n),
@@ -55,8 +99,9 @@ pll pll (
 	.extlock(clklock),
 	.clk0_out(clk)
 	);
+`endif
 
-cpu_top cpu_top (
+cpu_top #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) cpu_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.cpu_start(cpu_start),
@@ -75,12 +120,22 @@ cpu_top cpu_top (
 	.i_ram_wen(i_ram_wen),
 	.i_read_sel(i_read_sel),
 	.pc_data(pc_data),
-	.st_adr_io(st_adr_io),
-	.st_data_io(st_data_io),
-	.st_we_io(st_we_io)
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_radr_en(dma_io_radr_en),
+	.dma_io_rdata_in(dma_io_rdata),
+	.ibus_ren(ibus_ren),
+	.ibus_radr(ibus_radr),
+	.ibus32_rdata(ibus32_rdata),
+	.ibus_wen(ibus_wen),
+	.ibus_wadr(ibus_wadr),
+	.ibus32_wdata(ibus32_wdata),
+	.interrupt_0(interrupt_0)
 	);
 
-uart_top uart_top (
+uart_top #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) uart_top (
 	.clk(clk),
 	.rst_n(rst_n),
 	.rx(rx),
@@ -100,24 +155,44 @@ uart_top uart_top (
 	.pc_data(pc_data),
 	.cpu_start(cpu_start),
 	.quit_cmd(quit_cmd),
-	.start_adr(start_adr)
-	//.tx_fifo_full(tx_fifo_full),
-	//.tx_fifo_overrun(tx_fifo_overrun),
-	//.tx_fifo_underrun(tx_fifo_underrun)
+	.start_adr(start_adr),
+	.uart_io_char(uart_io_char),
+	.uart_io_we(uart_io_we),
+	.uart_io_full(uart_io_full)
 	
 	);
-//wire [2:0] rgb_led_dummy;
-//assign rgb_led = { tx_fifo_full, tx_fifo_overrun, tx_fifo_underrun };
-//assign rgb_led = { i_ram_wadr[4:2] };
 
 io_led io_led (
 	.clk(clk),
 	.rst_n(rst_n),
-	.st_we_io(st_we_io),
-	.st_adr_io(st_adr_io),
-	.st_data_io(st_data_io),
-	.rgb_led(rgb_led)
-	//.rgb_led(rgb_led_dummy)
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_radr_en(dma_io_radr_en),
+	.dma_io_rdata_in(dma_io_rdata_in_2),
+	.dma_io_rdata(dma_io_rdata),
+	.rgb_led(rgb_led),
+	.rgb_led1(rgb_led1),
+	.rgb_led2(rgb_led2),
+	.rgb_led3(rgb_led3)
 	);
+
+io_uart_out io_uart_out (
+	.clk(clk),
+	.rst_n(rst_n),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_radr_en(dma_io_radr_en),
+	.dma_io_rdata_in(dma_io_rdata_in),
+	.dma_io_rdata(dma_io_rdata_in_2),
+	.uart_io_char(uart_io_char),
+	.uart_io_we(uart_io_we),
+	.uart_io_full(uart_io_full)
+	);
+
+
 
 endmodule

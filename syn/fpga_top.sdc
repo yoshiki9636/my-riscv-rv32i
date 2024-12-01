@@ -1,2 +1,2 @@
 #Created Clock
-create_clock -name clk -period 20.8333 [get_nets {clk}]
+create_clock -name clk -period 27.77 [get_nets {clk}]

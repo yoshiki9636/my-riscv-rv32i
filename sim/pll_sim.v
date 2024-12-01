@@ -11,13 +11,13 @@
 module pll(
 	input refclk,
 	input reset,
-	output stdby,
+	//output stdby,
 	output extlock,
 	output clk0_out
 
 	);
 
-assign stdby = 1'b0;
+//assign stdby = 1'b0;
 assign extlock = 1'b0;
 assign clk0_out = refclk;
 

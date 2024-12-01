@@ -8,22 +8,41 @@
  * @version		0.1
  */
 
-module data_1r1w(
+//`define TANG_PRIMER
+`define ARTY_A7
+
+module data_1r1w
+	#(parameter DRWIDTH = 9)
+	(
 	input clk,
-	input [9:0] ram_radr,
+	input [DRWIDTH-1:0] ram_radr,
 	output [31:0] ram_rdata,
-	input [9:0] ram_wadr,
+	input [DRWIDTH-1:0] ram_wadr,
 	input [31:0] ram_wdata,
 	input [3:0] ram_wen
 	);
 
 // 4x1024 1r1w RAM
 
-reg[7:0] ram0[0:1023];
-reg[7:0] ram1[0:1023];
-reg[7:0] ram2[0:1023];
-reg[7:0] ram3[0:1023];
-reg[9:0] radr;
+`ifdef TANG_PRIMER
+reg[7:0] ram0[0:(2**DRWIDTH)-1];
+reg[7:0] ram1[0:(2**DRWIDTH)-1];
+reg[7:0] ram2[0:(2**DRWIDTH)-1];
+reg[7:0] ram3[0:(2**DRWIDTH)-1];
+`endif
+
+`ifdef ARTY_A7
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram0[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram1[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram2[0:(2**DRWIDTH)-1];
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[7:0] ram3[0:(2**DRWIDTH)-1];
+`endif
+
+reg[DRWIDTH-1:0] radr;
 
 always @ (posedge clk) begin
 	if (ram_wen[0])

@@ -25,9 +25,24 @@ module uart_if(
 	output tx_fifo_full,
 	output tx_fifo_overrun,
 	output tx_fifo_underrun,
-	output reg [2:0] rx_fifo_rcntr
+	output [2:0] rx_fifo_rcntrs
 
 	);
+	
+// clk:90MHz, 9600bps
+//`define TERM 9375
+//`define HARF 4688
+//`define TERM 8854
+//`define HARF 4427
+// clk:80MHz, 9600bps
+//`define TERM 8333
+//`define HARF 4166
+// clk:75MHz, 9600bps
+//`define TERM 7812
+//`define HARF 3906
+// clk:66.6MHz, 9600bps
+`define TERM 6944
+`define HARF 3472
 
 // clk:50MHz, 9600bps
 //`define TERM 5208
@@ -36,8 +51,8 @@ module uart_if(
 //`define TERM 5000
 //`define HARF 2500
 // clk:36MHz, 9600bps
-`define TERM 3750
-`define HARF 1875
+//`define TERM 3750
+//`define HARF 1875
 // clk:24MHz, 9600bps
 //`define TERM 2500
 //`define HARF 1250
@@ -95,7 +110,7 @@ wire edge_rx = ~rx2 & s0;
 wire sample_trg;
 reg [3:0] rx_state;
 
-wire [3:0] bit_cnt = {2'd0, s0} +  {2'd0, s1} +  {2'd0, s2} +  {2'd0, s3} +  {2'd0, s4}; 
+wire [2:0] bit_cnt = {2'd0, s0} +  {2'd0, s1} +  {2'd0, s2} +  {2'd0, s3} +  {2'd0, s4}; 
 
 wire bit_data = (bit_cnt >= 3'd3);
 
@@ -109,22 +124,22 @@ wire start_trg = edge_rx & (rx_state == `RX_IDLE);
 
 // sample trigger
 
-reg [12:0] sample_cntr;
+reg [15:0] sample_cntr;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		sample_cntr <= 13'd0;
+		sample_cntr <= 16'd0;
 	else if (start_trg)
 		sample_cntr <= `HARF;
 	else if (start_ok | get_bit)
 		sample_cntr <= `TERM;
-	else if (sample_cntr == 13'd0)
-		sample_cntr <= 13'd0;
+	else if (sample_cntr == 16'd0)
+		sample_cntr <= 16'd0;
 	else
-		sample_cntr <= sample_cntr - 13'd1;
+		sample_cntr <= sample_cntr - 16'd1;
 end
 
-assign sample_trg = (sample_cntr == 13'd1);
+assign sample_trg = (sample_cntr == 16'd1);
 
 
 // rx state machine
@@ -198,7 +213,7 @@ end
 
 // rx FIFO 
 reg [2:0] rx_fifo_wcntr;
-//reg [2:0] rx_fifo_rcntr;
+reg [2:0] rx_fifo_rcntr;
 reg [3:0] rx_fifo_dcntr;
 
 always @ (posedge clk or negedge rst_n) begin
@@ -230,7 +245,7 @@ assign rx_fifo_full = (rx_fifo_dcntr == 4'd8);
 assign rx_fifo_dvalid = ~(rx_fifo_dcntr == 4'd0);
 assign rx_fifo_overrun = rx_fifo_full & end_ok;
 assign rx_fifo_underrun = ~rx_fifo_dvalid & rx_rden;
-
+assign rx_fifo_rcntrs = rx_fifo_rcntr;
 
 // rx FIFO RAM
 
@@ -314,23 +329,23 @@ always @ (posedge clk or negedge rst_n) begin
 		tx_out_cntr <= tx_out_cntr - 4'd1;
 end
 
-reg [12:0] tx_cycle_cntr;
+reg [15:0] tx_cycle_cntr;
 wire tx_cntr_next;
 
 wire tx_start_cycle = tx_cntr_start | tx_cntr_next;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		tx_cycle_cntr <= 13'd0;
+		tx_cycle_cntr <= 16'd0;
 	else if (tx_start_cycle)
 		tx_cycle_cntr <= `TERM;
-	else if (tx_cycle_cntr == 13'd0)
-		tx_cycle_cntr <= 13'd0;
+	else if (tx_cycle_cntr == 16'd0)
+		tx_cycle_cntr <= 16'd0;
 	else
-		tx_cycle_cntr <= tx_cycle_cntr - 13'd1;
+		tx_cycle_cntr <= tx_cycle_cntr - 16'd1;
 end
 
-assign tx_cycle_end = (tx_cycle_cntr == 13'd1);
+assign tx_cycle_end = (tx_cycle_cntr == 16'd1);
 
 assign tx_cntr_next = tx_cycle_end & (tx_out_cntr != 4'd0);
 wire tx_cntr_finish = tx_cycle_end & (tx_out_cntr == 4'd0);

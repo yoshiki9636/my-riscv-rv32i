@@ -8,6 +8,9 @@
  * @version		0.1
  */
 
+//`define TANG_PRIMER
+`define ARTY_A7
+
 module rf_2r1w(
 	input clk,
 	input [4:0] ram_radr1,
@@ -21,7 +24,13 @@ module rf_2r1w(
 
 // 4x32 1r1w RAM
 
+`ifdef TANG_PRIMER
 reg[31:0] ram[0:31];
+`endif
+`ifdef ARTY_A7
+(* rw_addr_collision = "yes" *)
+(* ram_style = "block" *) reg[31:0] ram[0:31];
+`endif
 reg[4:0] radr1;
 reg[4:0] radr2;
 

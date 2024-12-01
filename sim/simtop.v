@@ -14,17 +14,29 @@ reg clkin;
 reg rst_n;
 wire rx = 1'b0;
 wire tx;
+reg interrupt_0;
 wire [2:0] rgb_led;
+wire [2:0] rgb_led1;
+wire [2:0] rgb_led2;
+wire [2:0] rgb_led3;
 
 fpga_top fpga_top (
         .clkin(clkin),
         .rst_n(rst_n),
 		.rx(rx),
         .tx(tx),
-        .rgb_led(rgb_led)
+		.interrupt_0(interrupt_0),
+        .rgb_led(rgb_led),
+        .rgb_led1(rgb_led1),
+        .rgb_led2(rgb_led2),
+        .rgb_led3(rgb_led3)
 	);
 
 initial $readmemh("./test.txt", fpga_top.cpu_top.if_stage.inst_1r1w.ram);
+//initial $readmemh("./test0.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram0);
+//initial $readmemh("./test1.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram1);
+//initial $readmemh("./test2.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram2);
+//initial $readmemh("./test3.txt", fpga_top.cpu_top.ma_stage.data_1r1w.ram3);
 
 initial clkin = 0;
 
@@ -34,6 +46,7 @@ always #5 clkin <= ~clkin;
 initial begin
 	force fpga_top.cpu_start = 1'b0;
 	rst_n = 1'b1;
+	interrupt_0 = 1'b0;
 #10
 	rst_n = 1'b0;
 #20
@@ -45,5 +58,7 @@ initial begin
 #500000
 	$stop;
 end
+
+
 
 endmodule

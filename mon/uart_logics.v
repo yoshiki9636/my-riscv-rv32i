@@ -8,18 +8,21 @@
  * @version		0.1
  */
 
-module uart_logics(
+module uart_logics
+    #(parameter IWIDTH = 12,
+      parameter DWIDTH = 12)
+	(
 	input clk,
 	input rst_n,
-	output [11:2] i_ram_radr,
+	output [IWIDTH+1:2] i_ram_radr,
 	input [31:0] i_ram_rdata,
-	output [11:2] i_ram_wadr,
+	output [IWIDTH+1:2] i_ram_wadr,
 	output [31:0] i_ram_wdata,
 	output i_ram_wen,
 	output i_read_sel,
-	output [11:2] d_ram_radr,
+	output [DWIDTH+1:2] d_ram_radr,
 	input [31:0] d_ram_rdata,
-	output [11:2] d_ram_wadr,
+	output [DWIDTH+1:2] d_ram_wadr,
 	output [31:0] d_ram_wdata,
 	output d_ram_wen,
 	output d_read_sel,
@@ -87,7 +90,7 @@ assign run = cpu_running | step_run;
 
 // iram write address 
 reg [31:2] cmd_wadr_cntr;
-wire [11:2] trush_adr;
+wire [DWIDTH+1:2] trush_adr;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
@@ -98,10 +101,10 @@ always @ (posedge clk or negedge rst_n) begin
 		cmd_wadr_cntr <= cmd_wadr_cntr + 32'd1;
 end
 
-assign i_ram_wadr = trush_running ? trush_adr : cmd_wadr_cntr[11:2];
+assign i_ram_wadr = trush_running ? trush_adr[IWIDTH+1:2] : cmd_wadr_cntr[IWIDTH+1:2];
 assign i_ram_wdata = trush_running ? 32'd0 : uart_data;
 assign i_ram_wen = inst_data_en | trush_running;
-assign d_ram_wadr = i_ram_wadr;
+assign d_ram_wadr =  trush_running ? trush_adr : cmd_wadr_cntr[DWIDTH+1:2];
 assign d_ram_wdata = i_ram_wdata;
 assign d_ram_wen = write_data_en | trush_running;
 
@@ -130,9 +133,8 @@ end
 
 assign dump_end =(cmd_read_adr >= { 1'b0, cmd_read_end });
 
-assign i_ram_radr = cmd_read_adr[7:0];
-assign d_ram_radr = cmd_read_adr[7:0];
-
+assign i_ram_radr = cmd_read_adr[IWIDTH+1:2];
+assign d_ram_radr = cmd_read_adr[DWIDTH+1:2];
 
 `define D_IDLE 2'd0
 `define D_READ 2'd1
@@ -274,19 +276,19 @@ end
 assign rdata_snd = { data_0, data_1 };//, data_2, data_3 };
 
 // trashing memory data
-reg [12:2] trash_cntr;
+reg [DWIDTH+2:2] trash_cntr;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		trash_cntr <= 11'd0;
+		trash_cntr <= { DWIDTH+1{ 1'b0 }};
 	else if (start_trush)
-		trash_cntr <= 11'h400;
-	else if (trash_cntr[12])
-		trash_cntr <= trash_cntr + 9'd1;
+		trash_cntr <= { 1'b1, { DWIDTH{ 1'b0 }}};
+	else if (trash_cntr[DWIDTH+2])
+		trash_cntr <= trash_cntr + 1;
 end
 
-assign trush_adr = trash_cntr[11:2];
-assign trush_running = trash_cntr[12];
+assign trush_adr = trash_cntr[DWIDTH+1:2];
+assign trush_running = trash_cntr[DWIDTH+2];
 
 
 // send CPU status to UART i/f
