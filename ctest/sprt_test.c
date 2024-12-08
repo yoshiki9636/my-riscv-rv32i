@@ -36,7 +36,7 @@ int main() {
 		sprintf(cbuf2, "value = %d\n", r);
 		int length = strlen(cbuf2);
 		//uprint( cbuf2, length, 0 );
-		uprint( cbuf2, 10, 0 );
+		uprint( cbuf2, length, 0 );
 		wait();
 	}
 	return 0;

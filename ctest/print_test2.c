@@ -20,7 +20,9 @@ int main() {
 	if (length > 10) {
 		fail();
 	}
-	uprint( cbuf2, length );
+	for (int i = 0 ; i < 6; i++) {
+		uprint( cbuf2, length );
+	}
 
 	pass();
 	return 0;
