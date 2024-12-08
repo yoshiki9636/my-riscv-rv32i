@@ -44,6 +44,7 @@ module uart_if(
 `define TERM 6944
 `define HARF 3472
 
+
 // clk:50MHz, 9600bps
 //`define TERM 5208
 //`define HARF 2604
@@ -291,8 +292,8 @@ always @ (posedge clk or negedge rst_n) begin
 		tx_fifo_dcntr <= tx_fifo_dcntr - 4'd1;
 end
 
-assign tx_fifo_full = (tx_fifo_dcntr == 4'd8);
-wire   tx_fifo_dvalid = ~(tx_fifo_dcntr == 4'd0);
+assign tx_fifo_full = (tx_fifo_dcntr >= 4'd8);
+wire   tx_fifo_dvalid = (tx_fifo_dcntr != 4'd0);
 assign tx_fifo_overrun = tx_fifo_full & tx_wten;
 assign tx_fifo_underrun = ~tx_fifo_dvalid & tx_rden;
 
@@ -309,12 +310,13 @@ wire [7:0] tx_rdata;
 	);
 
 // 
-`define TX_IDLE 1'b0
-`define TX_CNTR 1'b1
+`define TX_IDLE 2'b00
+`define TX_CNTR 2'b01
+`define TX_WAIT 2'b11
 
 reg [3:0] tx_out_cntr;
 wire tx_cycle_end;
-reg tx_state;
+reg [1:0] tx_state;
 
 wire tx_cntr_start = tx_fifo_dvalid & (tx_state == `TX_IDLE);
 
@@ -354,22 +356,23 @@ assign tx_rden = tx_cntr_finish;
 
 // splitter
 
-function tx_state_machine;
-input tx_state;
+function [1:0] tx_state_machine;
+input [1:0] tx_state;
 input tx_fifo_dvalid;
 input tx_cntr_finish;
 begin
 	case(tx_state)
 		`TX_IDLE: if (tx_fifo_dvalid) tx_state_machine = `TX_CNTR;
 				  else tx_state_machine = `TX_IDLE;
-		`TX_CNTR: if (tx_cntr_finish) tx_state_machine = `TX_IDLE;
+		`TX_CNTR: if (tx_cntr_finish) tx_state_machine = `TX_WAIT;
 				  else tx_state_machine = `TX_CNTR;
+		`TX_WAIT: tx_state_machine = `TX_IDLE;
 		default : tx_state_machine = `TX_IDLE;
 	endcase
 end
 endfunction
 
-wire next_tx_state = tx_state_machine( tx_state, tx_fifo_dvalid, tx_cntr_finish);
+wire [1:0] next_tx_state = tx_state_machine( tx_state, tx_fifo_dvalid, tx_cntr_finish);
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n)
