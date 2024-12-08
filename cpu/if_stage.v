@@ -110,10 +110,10 @@ reg [31:0] inst_roll;
 
 always @ (posedge clk or negedge rst_n) begin   
 	if (~rst_n)
-        inst_roll <= 32'd0;
+        inst_roll <= 32'h0000_0013;
 	else if (rst_pipe)
-        inst_roll <= 32'd0;	
-	else if (stall_1shot | stall_ld)
+        inst_roll <= 32'h0000_0013;
+	else if (stall_1shot | ~stall_dly & stall_ld)
         inst_roll <= inst_rdata_id;
 end
 
