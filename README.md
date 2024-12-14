@@ -20,7 +20,8 @@ Currently fpga_top.v is set to Arty A7. please change the ifdef setting when usi
 - Create around ALU, Load/Store, Jump, csr system and ecall.
 - FENCE system, ECALL system other than ECALL, EXCEPTION are not implemented.
 - Memory is separated by INSTRUCTION and DATA. Each is 1K Words in size.
-- I/O is only 3-pin RGB LED.
+- I/O has 4 sets of 3-pin RGB LED.
+- Uart output using I/O supported.
 
 2. simple usage
   
@@ -330,8 +331,8 @@ load only
   
 	IF: | r1 | r2 | r2 | r4 | r5 |  
 	ID:      | r1 | r2 | r2 | r4 | r5 |  
-	EX:           | r1 | r2 | r2 | r4 | r5 |  
-	MA:                | r1 | r2*|*r2 | r4 | r5 |  
+	EX:           | r1 | r2 | r2 |*r4 | r5 |  
+	MA:                | r1 | r2*| r2 | r4 | r5 |  
 	WB:                     | r1 | r2 | r2 | r4 | r5 |  
   
   
@@ -363,7 +364,8 @@ Xilinx Artix-7のDigilent Arty A7での設定と、MMCMの記述を追加しま�
 - ALU周り、Load/Store、Jump、csr系とecallを作成。  
 - fence系、ecall以外のecall系、exception未実装。  
 - メモリはinstructionとdataでセパレート。各々1KWordsの大きさ。  
-- I/OはRGB LEDの3ピンのみ。  
+- I/Oは4セットのRGB LEDの12ピン。
+- Uartでの表字を using I/Oで実現。
   
 2. 簡単な使い方  
   
