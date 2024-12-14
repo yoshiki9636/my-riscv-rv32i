@@ -95,7 +95,24 @@ Here is a note on how to synthesize when using the Digilent Arty A7, using Xilin
 (4) Perform the following synthesis in the manner of Vivado and write to Arty A7.
   
 (5) Since the Arty A7 can use the USB connection as a UART, no special UART converter is needed. The rest is identical to the Tang Primer method (7).
-  
+
+
+2.5 How to run C bare-metal programs
+
+(1) https://github.com/riscv-collab/riscv-gnu-toolchain Create a tool chain. You may get stuck on the way, but it may be the version of git, so please be patient and deal with the errors. Note that this CPU only supports RV32i and the most basic instruction set, so do not make a mistake when you configure it.
+
+./configure --prefix=/opt/riscv32i --with-arch=rv32i --with-abi=ilp32
+
+make should select newlib.
+
+make
+
+(2) C samples are available in ctest/. It has been tested in the author's environment. Shell for compilation (Makefile was troublesome...) The name of the tool chain is written in the script. The tool name is written in the script, so please change it to the name of the tool in the above tool chain. After that, all you have to do is to run the shell.
+
+./cmpl.sh XX.c
+
+Various files such as binaries can be created, but all that is needed is XX.hex. Then, read XX.hex using the i command as in step 2. At this time, some programs (most of them) require an image on the D memory side as well, so use the w000000000 command to load the image on the D memory side as well. Execution is done g00000000. 
+
 ----------
 
 Design Memo ( English )
@@ -439,7 +456,30 @@ Digilent Arty A7を使う場合の合成方法のメモです。Xilinx Vivadoを
 (4) Vivadoのお作法で合成以下を行い、Arty A7に書き込みます。
   
 (5) Arty A7はUSB接続がUARTとして使用できるので、特にUART変換器は必要ありません。あとはTang Primerの方法(7)からと同一です。
-  
+
+2.5 ベアメタルCプログラム動作方法
+
+(1) riscv toolchainの整備
+
+https://github.com/riscv-collab/riscv-gnu-toolchain 
+を使ってツールチェーンを作成します。途中引っかかることがありますが、gitのバージョンだったりしますので、根気よくエラーに対応してください。 なお、本CPUはRV32iと、一番基本的な命令セットしかサポートしていないので、configureするときに指定を間違えないでください。
+
+./configure --prefix=/opt/riscv32i --with-arch=rv32i --with-abi=ilp32
+
+makeはnewlibを作成します。
+
+make
+
+ツールのbinへのパスを通しておいてください。
+
+PATH=/opt/riscv32i/bin:$PATH
+
+(2) Cのサンプルがctest/内にあります。作者の環境で動作確認しております。コンパイル用のシェル(Makefileが面倒だったもので。。。)があります。スクリプト内部にツール名が記載されていますので、上記ツールチェーンのツール名に変更してください。後はシェルを実行するだけです。
+
+./cmpl.sh XX.c
+
+バイナリ等いろいろファイルができますが、必要なのはXX.hexです。あとは2.の手順と同じようにiコマンドでXX.hexを読み込んでください。この時、プログラムによっては（ほとんどはそうですが）Dメモリ側にもイメージが必要なので、w000000000 コマンドでDメモリ側にもイメージを読み込んでください。実行はg00000000を行います。 
+
 -----  
 Design Memo ( Japanese )  
   
