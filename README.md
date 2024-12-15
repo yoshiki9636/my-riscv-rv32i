@@ -382,7 +382,7 @@ Xilinx Artix-7のDigilent Arty A7での設定と、MMCMの記述を追加しま�
 - fence系、ecall以外のecall系、exception未実装。  
 - メモリはinstructionとdataでセパレート。各々1KWordsの大きさ。  
 - I/Oは4セットのRGB LEDの12ピン。
-- Uartでの表字を using I/Oで実現。
+- Uartでの表字をI/Oで実現。
   
 2. 簡単な使い方  
   
