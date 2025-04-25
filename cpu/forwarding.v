@@ -35,9 +35,12 @@ module forwarding(
 	output reg stall_ld_ex,
 	output reg stall_ld_ex_dly,
 	output stall_ld,
+	// jump condition
+	input jmp_purge_ma,
 	// stall
 	input stall,
 	input rst_pipe
+
 
 	);
 
@@ -63,7 +66,7 @@ wire hit_rs2_idwb = rd_adr_wb_not0 & (inst_rs2_id == rd_adr_wb) & inst_rs2_valid
 wire nohit_rs2 = ~( hit_rs2_idex | hit_rs2_idma | hit_rs2_idwb);
 
 // for stall 1 cycle
-assign stall_ld = hit_rs1_ldidex | hit_rs2_ldidex;
+assign stall_ld = (hit_rs1_ldidex | hit_rs2_ldidex) & ~jmp_purge_ma;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (~rst_n) begin

@@ -450,6 +450,7 @@ forwarding forwarding (
 	.stall_ld(stall_ld),
 	.stall_ld_ex(stall_ld_ex),
 	.stall_ld_ex_dly(stall_ld_ex_dly),
+	.jmp_purge_ma(jmp_purge_ma),
 	.stall(stall),
 	.rst_pipe(rst_pipe)
 	);
