@@ -49,7 +49,7 @@ module cpu_top
     output [19:2] ibus_wadr,
     output [15:0] ibus32_wdata,
 
-	output interrupt_clear,
+	input interrupt_clear,
 	output csr_mtie,
 	input frc_cntr_val_leq,
 	input interrupt_0
