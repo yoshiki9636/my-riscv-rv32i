@@ -17,6 +17,7 @@ module interrupter(
 	input interrupt_clear,
 	// from csr
 	input csr_meie,
+	output g_interrupt_1shot,
 	output reg g_interrupt
 
 	);
@@ -47,5 +48,15 @@ always @ (posedge clk or negedge rst_n) begin
 	else if (csr_meie & int_2lat & ~int_3lat)
 		g_interrupt <= 1'b1;
 end
+
+reg g_interrupt_dly;
+always @ (posedge clk or negedge rst_n) begin
+	if (~rst_n)
+		g_interrupt_dly <= 1'b0;
+	else
+		g_interrupt_dly <= g_interrupt;
+end
+
+assign g_interrupt_1shot = g_interrupt & ~g_interrupt_dly;
 
 endmodule

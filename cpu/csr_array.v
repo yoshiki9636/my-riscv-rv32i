@@ -21,6 +21,7 @@ module csr_array(
 	output [31:0] csr_rd_data,
 	output [31:2] csr_mtvec_ex,
 	input g_interrupt,
+	input g_interrupt_1shot,
 	input post_jump_cmd_cond,
 	input illegal_ops_ex,
 	input g_exception,
@@ -124,8 +125,10 @@ reg csr_spie;
 reg [1:0] csr_mpp;
 reg csr_spp;
 
+wire frc_cntr_val_leq_1shot;
+
 // MIE[3] : Machine mode Global Interrupt enable
-wire m_interrupt = (g_interrupt | frc_cntr_val_leq) & (g_interrupt_priv == `M_MODE);
+wire m_interrupt = (g_interrupt_1shot | frc_cntr_val_leq_1shot) & (g_interrupt_priv == `M_MODE);
 wire rmie_wr = m_interrupt | cmd_mret_ex;
 wire rmie_value = m_interrupt ? 1'b0 :
                  cmd_mret_ex ? csr_mpie : csr_rmie;
@@ -178,7 +181,7 @@ always @ ( posedge clk or negedge rst_n) begin
 end
 
 // SIE[1] : Supervisor mode Global Interrupt enable : currently not used
-wire s_interrupt = (g_interrupt | frc_cntr_val_leq) & (g_interrupt_priv == `S_MODE);
+wire s_interrupt = (g_interrupt_1shot | frc_cntr_val_leq) & (g_interrupt_priv == `S_MODE);
 wire sie_wr = s_interrupt | cmd_sret_ex;
 wire sie_value = s_interrupt ? 1'b0 :
                  cmd_sret_ex ? csr_spie : csr_sie;
@@ -287,7 +290,7 @@ assign mcause_code = g_interrupt ? 31'd11 :
                     frc_cntr_val_leq ? 31'd7 :
                     illegal_ops_ex ? 31'd2 :
                     cmd_ecall_ex ?  31'd3 : 31'd0;
-wire mcause_write = cmd_ecall_ex | g_interrupt | g_exception | frc_cntr_val_leq | illegal_ops_ex;
+wire mcause_write = cmd_ecall_ex | g_interrupt_1shot | g_exception | frc_cntr_val_leq_1shot | illegal_ops_ex;
 
 always @ ( posedge clk or negedge rst_n) begin   
 	if (~rst_n) begin
@@ -346,14 +349,24 @@ assign csr_msie = csr_mie_bits[0];
 reg [31:2] post_pc_ex;
 
 always @ ( posedge clk or negedge rst_n) begin
-	if (~rst_n) begin
+	if (~rst_n)
 		post_pc_ex <= 30'd0;
-	end
 	else
 		post_pc_ex <= pc_excep;
 end
 
 assign sel_pc_ex = post_jump_cmd_cond ? post_pc_ex : pc_excep;
 
+// make 1shot of frc_cntr_val_leq
+reg frc_cntr_val_leq_dly;
+
+always @ ( posedge clk or negedge rst_n) begin
+	if (~rst_n)
+		frc_cntr_val_leq_dly <= 1'b0;
+	else
+		frc_cntr_val_leq_dly <= frc_cntr_val_leq;
+end
+
+assign frc_cntr_val_leq_1shot = frc_cntr_val_leq & ~frc_cntr_val_leq_dly;
 
 endmodule

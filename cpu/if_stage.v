@@ -27,7 +27,7 @@ module if_stage
 	input cmd_sret_ex,
 	input [31:2] csr_sepc_ex,
 	input cmd_uret_ex,
-    input g_interrupt,
+    input g_interrupt_1shot,
 	output post_jump_cmd_cond,
 	input g_exception,
 	// from monitor
@@ -57,7 +57,7 @@ module if_stage
 
 reg [31:2] pc_if;
 reg post_intr_ecall_exception;
-wire intr_ecall_exception = ecall_condition_ex | g_interrupt | g_exception ;
+wire intr_ecall_exception = ecall_condition_ex | g_interrupt_1shot | g_exception ;
 wire jump_cmd_cond = jmp_condition_ex | cmd_mret_ex | cmd_sret_ex | cmd_uret_ex;
 
 wire jmp_cond = intr_ecall_exception | ( jump_cmd_cond & ~post_intr_ecall_exception);

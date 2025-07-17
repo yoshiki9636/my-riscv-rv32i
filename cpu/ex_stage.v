@@ -87,6 +87,7 @@ module ex_stage(
 	output [31:2] csr_sepc_ex,
 	// from somewhere...
 	input g_interrupt,
+	input g_interrupt_1shot,
 	input [1:0] g_interrupt_priv,
 	input [1:0] g_current_priv,
     input post_jump_cmd_cond,
@@ -224,6 +225,7 @@ csr_array csr_array (
 	.csr_rd_data(csr_rd_data),
 	.csr_mtvec_ex(csr_mtvec_ex),
 	.g_interrupt(g_interrupt),
+	.g_interrupt_1shot(g_interrupt_1shot),
 	.g_interrupt_priv(g_interrupt_priv),
 	.g_current_priv(g_current_priv),
 	.post_jump_cmd_cond(post_jump_cmd_cond),
