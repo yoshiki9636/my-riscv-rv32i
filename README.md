@@ -61,23 +61,23 @@ https://tang.sipeed.com/en/
   
 (8) In Configuration->Terminal, set the line feed code to Receive: AUTO Transmit: CR. If you get an echo back when you tap the keyboard with this code, it is working.
   
-(9) Write the program. press q to clear the status, then type i 00000000 to start a new line. Copy and paste the contents of test.txt created in the simulation. Finally, press q.
+(9) Write the program. press Ctrl-c to clear the status, then type i 00000000 to start a new line. Copy and paste the contents of test.txt created in the simulation. Finally, press Ctrl-c.
   
 (10) To dump the written program, type p 00000000 00000100. The program you just wrote will be dumped.
   
 (11) Execution will be in execution state at g 00000000. lchika.asm will cause RGB LEDs to change color. Other test programs will be the same lchika so that the test path can be understood after checking the items.
   
-(12) Stopping execution is also stopped with q. Other commands are as follows.
+(12) Stopping execution is also stopped with Ctrl-c. Other commands are as follows.
   
 	command format
 	g : goto PC address ( run program until quit ) : format: g <start addess>
-	q : quit from any command : format: q
-	w : write date to memory : format: w <start adderss> <data> ....<data> q
+	Ctrl-c : quit from any command : format: Ctrl-c
+	w : write date to memory : format: w <start adderss> <data> ....<data> Ctrl-c
 	r : read data from memory : format: r <start address> <end adderss>
 	t : trashed memory data and 0 clear : format: t
 	s : program step execution : format: s
 	p : read instruction memory : format: p <start address> <end adderss>
-	i : write instruction memory : format: i <start adderss> <data> ....<data> q
+	i : write instruction memory : format: i <start adderss> <data> ....<data> Ctrl-c
 	j : print current PC value : format: j
 
 2.4 Arty A7 Synthesis & Run
@@ -422,23 +422,23 @@ https://tang.sipeed.com/en/
   
 (8) 設定->端末で、　改行コード　受信:AUTO　送信:CR　これでキーボードをたたくとエコーバックが帰ってくれば、動いております。  
   
-(9) プログラムを書き込みます。qを押して、状態をクリアしたのち、i 00000000と打ち込むと、改行されます。シミュレーションで作ったtest.txtの内容をコピペしてください。最後にqを押します。  
+(9) プログラムを書き込みます。Ctrl-cを押して、状態をクリアしたのち、i 00000000と打ち込むと、改行されます。シミュレーションで作ったtest.txtの内容をコピペしてください。最後にCtrl-cを押します。  
   
 (10) 書き込んだプログラムをダンプするには、p 00000000 00000100と打ち込んでください。先ほどのプログラムがダンプされます。  
   
 (11) 実行は、g 00000000で実行状態になります。lchika.asmであれば、RGB LEDが色を変化させます。そのほかのテストプログラムも項目を確認後、テストパスがわかるように同じようなLチカとなります。  
   
-(12) 実行の停止もqで停止します。それ以外のコマンドは、以下の通りです。  
+(12) 実行の停止もCtrl-cで停止します。それ以外のコマンドは、以下の通りです。  
   
 	command format
 	g : goto PC address ( run program until quit ) : format:  g <start addess>
-	q : quit from any command                      : format:  q
-	w : write date to memory                       : format:  w <start adderss> <data> ....<data> q
+	Ctrl-c : quit from any command                      : format:  Ctrl-c
+	w : write date to memory                       : format:  w <start adderss> <data> ....<data> Ctrl-c
 	r : read data from memory                      : format:  r <start address> <end adderss>
 	t : trashed memory data and 0 clear            : format:  t
 	s : program step execution                     : format:  s
 	p : read instruction memory                    : format:  p <start address> <end adderss>
-	i : write instruction memory                   : format:  i <start adderss> <data> ....<data> q
+	i : write instruction memory                   : format:  i <start adderss> <data> ....<data> Ctrl-c
 	j : print current PC value                     : format:  j
 
 2.4 Arty A7 Synthesis & Run  
