@@ -238,7 +238,7 @@ csr_array csr_array (
     .csr_msie(csr_msie),
 	//.csr_mie(csr_mie),
     .cmd_ecall_ex(cmd_ecall_ex),
-	.pc_ex(pc_ex),
+	.pc_excep(pc_ex),
 	.stall(stall)
 	);
 

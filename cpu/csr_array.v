@@ -35,7 +35,7 @@ module csr_array(
 	output csr_mtie,
 	output csr_msie,
     input cmd_ecall_ex,
-	input [31:2] pc_ex,
+	input [31:2] pc_excep,
 	input stall
 	);
 
@@ -336,9 +336,9 @@ always @ ( posedge clk or negedge rst_n) begin
 		post_pc_ex <= 30'd0;
 	end
 	else 
-		post_pc_ex <= pc_ex;
+		post_pc_ex <= pc_excep;
 end
 
-assign sel_pc_ex = post_jump_cmd_cond ? post_pc_ex : pc_ex;
+assign sel_pc_ex = post_jump_cmd_cond ? post_pc_ex : pc_excep;
 
 endmodule
