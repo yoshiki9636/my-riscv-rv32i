@@ -49,6 +49,7 @@ wire dma_io_radr_en;
 wire [31:0] dma_io_rdata;
 wire [31:0] dma_io_rdata_in = 32'd0;
 wire [31:0] dma_io_rdata_in_2;
+wire [31:0] dma_io_rdata_in_3;
 wire ibus_ren;
 wire [19:2] ibus_radr;
 wire [15:0] ibus32_rdata = 16'd0;
@@ -73,6 +74,10 @@ wire [7:0] uart_io_char;
 wire  uart_io_we;
 wire  uart_io_full;
 
+// for free run counter signals
+wire csr_mtie;
+wire frc_cntr_val_leq;
+wire interrupt_clear;
 
 `ifdef ARTY_A7
 wire locked;
@@ -132,6 +137,9 @@ cpu_top #(.DWIDTH(DWIDTH), .IWIDTH(IWIDTH)) cpu_top (
 	.ibus_wen(ibus_wen),
 	.ibus_wadr(ibus_wadr),
 	.ibus32_wdata(ibus32_wdata),
+	.interrupt_clear(interrupt_clear),
+	.csr_mtie(csr_mtie),
+	.frc_cntr_val_leq(frc_cntr_val_leq),
 	.interrupt_0(interrupt_0)
 	);
 
@@ -171,7 +179,7 @@ io_led io_led (
 	.dma_io_radr(dma_io_radr),
 	.dma_io_radr_en(dma_io_radr_en),
 	.dma_io_rdata_in(dma_io_rdata_in_2),
-	.dma_io_rdata(dma_io_rdata),
+	.dma_io_rdata(dma_io_rdata_in_3),
 	.rgb_led(rgb_led),
 	.rgb_led1(rgb_led1),
 	.rgb_led2(rgb_led2),
@@ -193,6 +201,20 @@ io_uart_out io_uart_out (
 	.uart_io_full(uart_io_full)
 	);
 
+io_frc io_frc (
+	.clk(clk),
+	.rst_n(rst_n),
+	.dma_io_we(dma_io_we),
+	.dma_io_wadr(dma_io_wadr),
+	.dma_io_wdata(dma_io_wdata),
+	.dma_io_radr(dma_io_radr),
+	.dma_io_radr_en(dma_io_radr_en),
+	.dma_io_rdata_in(dma_io_rdata_in_3),
+	.dma_io_rdata(dma_io_rdata),
+	.csr_mtie(csr_mtie),
+	.frc_cntr_val_leq(frc_cntr_val_leq),
+	.interrupt_clear(interrupt_clear)
+	);
 
 
 endmodule
